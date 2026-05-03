@@ -267,4 +267,8 @@
     padding: 0.3rem 0.6rem;
     text-align: left;
   }
+  .prose-msg thead th {
+    background: var(--color-muted);
+    font-weight: 600;
+  }
 }

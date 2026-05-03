@@ -353,7 +353,7 @@ function MessageBubble({
       ).toUpperCase()
     : "A";
   return (
-    <div className={cn("flex gap-3", isUser && "flex-row-reverse")}>
+    <div className={cn("flex min-w-0 gap-3", isUser && "flex-row-reverse")}>
       {isUser ? (
         <Avatar className="h-7 w-7 shrink-0">
           <AvatarImage src={userProfile?.avatarUrl ?? ""} alt="Profil utilisateur" />
@@ -366,7 +366,7 @@ function MessageBubble({
       )}
       <div
         className={cn(
-          "rounded-lg px-3 py-2 max-w-[94%]",
+          "max-w-[94%] min-w-0 rounded-lg px-3 py-2",
           isUser ? "bg-primary text-primary-foreground" : "bg-muted/50 border border-border",
         )}
       >
