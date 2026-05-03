@@ -89,7 +89,9 @@ function userMessageSuggestsDataOrCatalogQuery(text: string): boolean {
   const lower = t.toLowerCase();
   if (/\b(information_schema|pg_catalog|pg_tables|pg_namespace)\b/i.test(lower)) return true;
   if (/\b(select|insert|update|delete|\bsql\b|requête|requete|query)\b/i.test(lower)) return true;
-  if (/\b(tables?|tableaux|colonnes?|columns?|champs?|fields?|schéma|schema|catalog)\b/i.test(lower))
+  if (
+    /\b(tables?|tableaux|colonnes?|columns?|champs?|fields?|schéma|schema|catalog)\b/i.test(lower)
+  )
     return true;
   if (/\b(bronze|silver|gold)\b/i.test(lower) && /\b(schéma|schema|table)\b/i.test(lower))
     return true;
@@ -316,7 +318,11 @@ export const Route = createFileRoute("/api/chat")({
                 'The keys MUST be exactly "categories" (array of strings) and "series" (array of objects with "name" and "data" array of numbers, same length as categories). ' +
                 "Do not use only a table for graph requests. Do not invent data. Use charts when they clarify comparisons.";
               // Gemini (OpenAI-compatible endpoint) often answers catalog questions from training data without calling tools; OpenAI models tend to respect tool use more reliably on the same prompt.
-              if (String(providerConfig.kind ?? "").toLowerCase().trim() === "gemini") {
+              if (
+                String(providerConfig.kind ?? "")
+                  .toLowerCase()
+                  .trim() === "gemini"
+              ) {
                 systemContent +=
                   " GEMINI_TOOL_FIRST (non-negotiable): On database catalog questions (schemas, tables, columns, counts), your response MUST start by invoking the MCP/database tool — never stream a bullet list of table names until after tool results exist in this turn. " +
                   "Outputting demo names (customers, orders, Northwind-style) without a successful tool call is a failure; stop and call the tool first.";
@@ -382,7 +388,9 @@ export const Route = createFileRoute("/api/chat")({
                     ? compactToolsForAnthropic(allTools)
                     : allTools;
 
-                const kindNorm = String(providerConfig.kind ?? "").toLowerCase().trim();
+                const kindNorm = String(providerConfig.kind ?? "")
+                  .toLowerCase()
+                  .trim();
                 const forceToolChoiceRequired =
                   kindNorm === "gemini" &&
                   iter === 0 &&
