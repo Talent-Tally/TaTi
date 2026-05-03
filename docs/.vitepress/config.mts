@@ -12,8 +12,13 @@ export default defineConfig({
   base,
   lastUpdated: true,
   cleanUrls: true,
-  appearance: {
-    initialValue: "light",
+  /** Thème clair uniquement. (La forme `{ initialValue }` des types VP 1.6 n’autorise que `initialValue: 'dark'`, pas `'light'`.) */
+  appearance: false,
+  /** Évite le conflit avec l’app TaTi (`npm run dev`) qui utilise souvent le port 5173 par défaut. */
+  vite: {
+    server: {
+      port: 5174,
+    },
   },
   locales: {
     root: {

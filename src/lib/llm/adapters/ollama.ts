@@ -3,7 +3,7 @@ import type { LlmAdapter } from "../types";
 
 export function createOllamaAdapter(opts: { baseUrl: string }): LlmAdapter {
   return {
-    async *streamChat({ model, messages, tools, temperature, signal }) {
+    async *streamChat({ model, messages, tools, temperature, signal, toolChoice: _toolChoice }) {
       const oMessages = messages.map((m) => {
         if (m.role === "tool") {
           return {

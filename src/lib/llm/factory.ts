@@ -4,8 +4,24 @@ import { createOpenAiAdapter } from "./adapters/openai";
 import { createAnthropicAdapter } from "./adapters/anthropic";
 import { createOllamaAdapter } from "./adapters/ollama";
 
+/** Première variable d’environnement non vide (usage typique : secrets Docker sans stockage en DB). */
+function firstEnvKey(...names: string[]): string | undefined {
+  for (const n of names) {
+    const v = process.env[n]?.trim();
+    if (v) return v;
+  }
+  return undefined;
+}
+
+function normalizeKind(kind: string | undefined): string {
+  return String(kind ?? "")
+    .toLowerCase()
+    .trim();
+}
+
 export function getAdapter(provider: LlmProviderConfig): LlmAdapter {
-  switch (provider.kind) {
+  const kind = normalizeKind(provider.kind);
+  switch (kind) {
     case "anthropic": {
       if (!provider.api_key) throw new Error("Clé API Anthropic manquante");
       return createAnthropicAdapter({ apiKey: provider.api_key });
@@ -25,10 +41,22 @@ export function getAdapter(provider: LlmProviderConfig): LlmAdapter {
       });
     }
     case "gemini": {
-      if (!provider.api_key) throw new Error("Clé API Gemini manquante");
+      const apiKey =
+        provider.api_key?.trim() ||
+        firstEnvKey(
+          "GEMINI_API_KEY",
+          "GOOGLE_API_KEY",
+          "GOOGLE_AI_API_KEY",
+          "GOOGLE_GENERATIVE_AI_API_KEY",
+        );
+      if (!apiKey) {
+        throw new Error(
+          "Clé API Gemini absente en base. Va dans Paramètres → Google Gemini : colle la clé, Test puis la clé est enregistrée automatiquement après un test réussi (sinon clique Enregistrer), ou définis GEMINI_API_KEY sur le serveur.",
+        );
+      }
       return createOpenAiAdapter({
         baseUrl: provider.base_url || "https://generativelanguage.googleapis.com/v1beta/openai",
-        apiKey: provider.api_key,
+        apiKey,
       });
     }
     case "grok": {
@@ -78,6 +106,6 @@ export function getAdapter(provider: LlmProviderConfig): LlmAdapter {
       return createOllamaAdapter({ baseUrl: provider.base_url });
     }
     default:
-      throw new Error(`Provider inconnu : ${provider.kind}`);
+      throw new Error(`Provider inconnu : ${kind || provider.kind}`);
   }
 }

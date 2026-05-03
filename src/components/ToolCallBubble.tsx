@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronRight, Wrench, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { MarkdownChart } from "@/components/MarkdownChart";
+import { inferBarChartFromToolResult } from "@/lib/infer-chart-from-result";
 import { cn } from "@/lib/utils";
 
 export interface ToolCallDisplay {
@@ -15,8 +17,13 @@ export interface ToolCallDisplay {
 export function ToolCallBubble({ call }: { call: ToolCallDisplay }) {
   const [open, setOpen] = useState(false);
 
+  const autoChart = useMemo(() => {
+    if (call.status !== "done" || call.error) return null;
+    return inferBarChartFromToolResult(call.result, undefined);
+  }, [call.status, call.error, call.result]);
+
   return (
-    <div className="my-2 rounded-lg border border-border bg-muted/40 text-sm overflow-hidden">
+    <div className="my-2 rounded-lg border border-border bg-muted/40 text-sm overflow-x-auto">
       <button
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center gap-2 px-3 py-2 hover:bg-muted/60 transition-colors text-left"
@@ -38,6 +45,14 @@ export function ToolCallBubble({ call }: { call: ToolCallDisplay }) {
           {call.status === "error" && <AlertCircle className="h-3.5 w-3.5 text-destructive" />}
         </span>
       </button>
+      {autoChart ? (
+        <div className="border-t border-border/50 bg-background/30 px-2 pb-2 pt-2">
+          <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1 px-1">
+            Graphique (données outil)
+          </div>
+          <MarkdownChart spec={autoChart} />
+        </div>
+      ) : null}
       {open && (
         <div className="px-3 pb-3 pt-1 space-y-2 border-t border-border/50">
           <div>

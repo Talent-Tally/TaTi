@@ -51,6 +51,8 @@ async function postOp(payload: unknown): Promise<DbResult> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
       signal: controller.signal,
+      /** Cookie de session (login) : obligatoire pour que /api/db associe l’utilisateur et autorise l’écriture. */
+      credentials: "include",
     });
     const json = (await res.json()) as DbResult;
     if (!res.ok && !json.error) {
