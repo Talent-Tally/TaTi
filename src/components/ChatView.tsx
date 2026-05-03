@@ -97,7 +97,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
     if (!showScrollToBottom) {
       scrollToBottom("smooth");
     }
-  }, [items]);
+  }, [items, showScrollToBottom]);
 
   const onScroll = () => {
     setShowScrollToBottom(!isNearBottom());
