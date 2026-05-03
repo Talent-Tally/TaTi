@@ -84,12 +84,15 @@ export const Route = createFileRoute("/api/db")({
         if (authRequired && !user) {
           return Response.json({ error: { message: "Authentication required" } }, { status: 401 });
         }
+        // mcp_servers : écriture réservée aux admins. llm_providers : tout utilisateur authentifié
+        // peut configurer ses clés (sinon les updates via Paramètres renvoient 403 et la clé ne
+        // jamais persiste — le chat lit alors api_key NULL → « Clé API … manquante »).
         if (
           authRequired &&
           user &&
           user.role !== "admin" &&
-          ((ADMIN_ONLY_TABLES.has(body.table) && body.op !== "select") ||
-            (body.table === "llm_providers" && body.op !== "select"))
+          ADMIN_ONLY_TABLES.has(body.table) &&
+          body.op !== "select"
         ) {
           return Response.json({ error: { message: "Forbidden" } }, { status: 403 });
         }
@@ -171,6 +174,19 @@ export const Route = createFileRoute("/api/db")({
             const returning = body.returning || body.single ? " RETURNING *" : "";
             const sql = `UPDATE public."${body.table}" SET ${setSql}${where.sql}${returning}`;
             const res = await pool.query(sql, params as never);
+            const hadFilters = scopedFilters.length > 0;
+            if (hadFilters && (res.rowCount ?? 0) === 0) {
+              return Response.json(
+                {
+                  data: null,
+                  error: {
+                    message:
+                      "Aucune ligne mise à jour. Vérifie que tu es bien connecté (session), que l’enregistrement existe, et que tu accèdes à l’app sur la même origine (ex. ne pas mélanger localhost et 127.0.0.1).",
+                  },
+                },
+                { status: 404 },
+              );
+            }
             const data = body.single ? (res.rows[0] ?? null) : returning ? res.rows : null;
             return Response.json({ data, error: null });
           }
@@ -180,6 +196,19 @@ export const Route = createFileRoute("/api/db")({
             const returning = body.returning || body.single ? " RETURNING *" : "";
             const sql = `DELETE FROM public."${body.table}"${where.sql}${returning}`;
             const res = await pool.query(sql, where.params as never);
+            const hadFilters = scopedFilters.length > 0;
+            if (hadFilters && (res.rowCount ?? 0) === 0) {
+              return Response.json(
+                {
+                  data: null,
+                  error: {
+                    message:
+                      "Aucune ligne supprimée. Vérifie la session ou l’identifiant (même origine localhost / 127.0.0.1).",
+                  },
+                },
+                { status: 404 },
+              );
+            }
             const data = body.single ? (res.rows[0] ?? null) : returning ? res.rows : null;
             return Response.json({ data, error: null });
           }

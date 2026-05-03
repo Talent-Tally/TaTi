@@ -2,11 +2,13 @@
 import type { LlmAdapter } from "../types";
 
 export function createAnthropicAdapter(opts: { apiKey: string }): LlmAdapter {
-  const DEFAULT_KEEP_LAST_NON_SYSTEM = 4;
-  const RETRY_KEEP_LAST_NON_SYSTEM = 2;
-  const MAX_SYSTEM_CHARS = 1200;
-  const MAX_TEXT_CHARS = 1500;
-  const MAX_TOOL_RESULT_CHARS = 800;
+  /** Garder un fil de conversation lisible (4 messages = quasi tout était oublié). */
+  const DEFAULT_KEEP_LAST_NON_SYSTEM = 48;
+  const RETRY_KEEP_LAST_NON_SYSTEM = 16;
+  const MAX_SYSTEM_CHARS = 12000;
+  const MAX_TEXT_CHARS = 8000;
+  /** Résultats SQL / MCP souvent > 800 caractères ; trop court → hallucinations. */
+  const MAX_TOOL_RESULT_CHARS = 12000;
 
   function truncateText(value: string, maxChars: number): string {
     if (value.length <= maxChars) return value;
@@ -89,7 +91,7 @@ export function createAnthropicAdapter(opts: { apiKey: string }): LlmAdapter {
   }
 
   return {
-    async *streamChat({ model, messages, tools, temperature, signal }) {
+    async *streamChat({ model, messages, tools, temperature, signal, toolChoice: _toolChoice }) {
       const aTools =
         tools.length > 0
           ? tools.map((t) => ({

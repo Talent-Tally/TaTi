@@ -42,6 +42,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    # Sans ceci, les clés API (GEMINI_API_KEY, etc.) présentes dans `.env` sur l’hôte
+    # ne sont pas visibles dans le conteneur → « Clé API Gemini manquante » malgré la config.
+    env_file:
+      - .env
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-tati}:${POSTGRES_PASSWORD:-tati_dev_password}@postgres:5432/${POSTGRES_DB:-tati}
       NODE_ENV: development

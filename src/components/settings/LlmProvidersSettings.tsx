@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +50,7 @@ interface ProviderRow {
   max_tool_iterations: number;
   enabled: boolean;
   is_default: boolean;
+  updated_at?: string;
 }
 
 export function LlmProvidersSettings() {
@@ -137,7 +138,7 @@ export function LlmProvidersSettings() {
 
       {providers.map((p) => (
         <ProviderCard
-          key={p.id}
+          key={`${p.id}-${p.updated_at ?? ""}`}
           provider={p}
           onRemove={() => setPendingDelete(p)}
           onSetDefault={() => setDefault(p.id)}
@@ -228,19 +229,29 @@ function ProviderCard({
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [showKey, setShowKey] = useState(false);
+  /** Sert à lire la vraie valeur du champ si le navigateur a auto-rempli sans onChange (état React vide). */
+  const apiKeyInputRef = useRef<HTMLInputElement>(null);
 
   const usingCustomModel = !knownModels.some((m) => m.value === model);
+
+  /** Clé telle qu’affichée dans l’input (state + repli DOM) — indispensable pour mots de passe / autofill. */
+  const effectiveApiKey = () => {
+    const s = apiKey.trim();
+    if (s.length > 0) return s;
+    return (apiKeyInputRef.current?.value ?? "").trim();
+  };
 
   const test = async () => {
     setTesting(true);
     setTestResult(null);
     try {
+      const keyForRequest = effectiveApiKey();
       const res = await fetch("/api/test-llm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           kind: provider.kind,
-          api_key: apiKey || undefined,
+          api_key: keyForRequest || undefined,
           base_url: baseUrl || undefined,
         }),
       });
@@ -250,6 +261,35 @@ function ProviderCard({
           ok: true,
           message: `✓ Connexion OK. ${data.models?.length ?? 0} modèle(s) accessible(s).`,
         });
+        /** Le chat lit `api_key` depuis Postgres : après un test réussi, on persiste la clé (et l’URL si besoin)
+         *  pour éviter « Clé API … absente » si l’utilisateur oublie Enregistrer. */
+        if (meta?.needsApiKey && keyForRequest.length > 0) {
+          const persist: Record<string, unknown> = {
+            api_key: keyForRequest,
+            updated_at: new Date().toISOString(),
+          };
+          if (meta.needsBaseUrl) {
+            persist.base_url = baseUrl.trim().length > 0 ? baseUrl.trim() : null;
+          }
+          const { data: saved, error: persistErr } = await supabase
+            .from("llm_providers")
+            .update(persist)
+            .eq("id", provider.id)
+            .select("*")
+            .single();
+          if (persistErr) {
+            toast.error(
+              "Connexion OK, mais la clé n’a pas pu être enregistrée : " + persistErr.message,
+            );
+          } else if (!saved) {
+            toast.error(
+              "Connexion OK, mais aucune ligne mise à jour en base (session ? même URL localhost / 127.0.0.1 ?).",
+            );
+          } else {
+            toast.success("Clé enregistrée — utilisable par le chat.");
+            onUpdate();
+          }
+        }
       } else {
         setTestResult({ ok: false, message: data.error ?? "Échec" });
       }
@@ -263,25 +303,47 @@ function ProviderCard({
   const save = async () => {
     setSaving(true);
     const finalModel = customModel.trim() || model;
-    const { error } = await supabase
-      .from("llm_providers")
-      .update({
-        name,
-        api_key: apiKey || null,
-        base_url: baseUrl || null,
-        default_model: finalModel,
-        temperature,
-        max_tool_iterations: maxIter,
-        enabled,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", provider.id);
-    setSaving(false);
-    if (error) toast.error("Échec : " + error.message);
-    else {
-      toast.success("Enregistré");
-      onUpdate();
+    const keyToSave = effectiveApiKey();
+    /** Ne pas envoyer api_key si le champ est vide : sinon on écrase la clé en base avec null
+     *  (le test de connexion utilise la clé en mémoire, mais le chat lit la clé depuis la DB). */
+    const payload: Record<string, unknown> = {
+      name,
+      base_url: baseUrl || null,
+      default_model: finalModel,
+      temperature,
+      max_tool_iterations: maxIter,
+      enabled,
+      updated_at: new Date().toISOString(),
+    };
+    if (keyToSave.length > 0) {
+      payload.api_key = keyToSave;
     }
+    const { data: saved, error } = await supabase
+      .from("llm_providers")
+      .update(payload)
+      .eq("id", provider.id)
+      .select("*")
+      .single();
+    setSaving(false);
+    if (error) {
+      toast.error("Échec : " + error.message);
+      return;
+    }
+    if (!saved) {
+      toast.error(
+        "Aucune ligne mise à jour (non connecté, ou mauvaise session). Utilise la même URL pour tout le site (ex. uniquement localhost ou uniquement 127.0.0.1), reconnecte-toi puis réessaie.",
+      );
+      return;
+    }
+    if (meta?.needsApiKey && !saved.api_key?.trim()) {
+      toast.message(
+        "Réglages enregistrés, mais aucune clé en base : le champ « Clé API » était vide (coller la clé puis Enregistrer ou Tester).",
+        { duration: 9000 },
+      );
+    } else {
+      toast.success("Enregistré");
+    }
+    onUpdate();
   };
 
   return (
@@ -339,10 +401,15 @@ function ProviderCard({
           <Label htmlFor={`key-${provider.id}`}>Clé API</Label>
           <div className="flex gap-2">
             <Input
+              ref={apiKeyInputRef}
               id={`key-${provider.id}`}
               type={showKey ? "text" : "password"}
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
+              onBlur={() => {
+                const v = apiKeyInputRef.current?.value ?? "";
+                if (v.trim().length > 0 && v !== apiKey) setApiKey(v);
+              }}
               placeholder={
                 provider.kind === "anthropic"
                   ? "sk-ant-…"
@@ -364,7 +431,7 @@ function ProviderCard({
                                   ? "pplx-…"
                                   : "ta-clé-api"
               }
-              autoComplete="off"
+              autoComplete="new-password"
             />
             <Button
               variant="outline"
@@ -375,7 +442,11 @@ function ProviderCard({
               {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground"></p>
+          <p className="text-xs text-muted-foreground">
+            Nouvelle clé : colle-la puis <strong>Enregistrer</strong> (ou <strong>Tester</strong>).
+            Si le navigateur a rempli le champ tout seul, clique une fois dans le champ puis
+            Enregistrer. Champ vide = clé déjà en base inchangée.
+          </p>
         </div>
       )}
 
