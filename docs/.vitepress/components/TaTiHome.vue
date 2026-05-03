@@ -19,6 +19,14 @@ onMounted(() => {
 
 function openSearch(e?: MouseEvent) {
   e?.preventDefault();
+  // Même action que le bouton DocSearch de la navbar (fiable en SSR/hydratation qu’un KeyboardEvent synthétique).
+  const navBtn = document.querySelector<HTMLButtonElement>(
+    ".VPNavBarSearch #local-search .DocSearch-Button",
+  );
+  if (navBtn) {
+    navBtn.click();
+    return;
+  }
   const isMac = typeof navigator !== "undefined" && navigator.platform.includes("Mac");
   window.dispatchEvent(
     new KeyboardEvent("keydown", {
