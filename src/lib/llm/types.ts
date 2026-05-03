@@ -62,6 +62,8 @@ export interface LlmAdapter {
     tools: LlmTool[];
     temperature: number;
     signal?: AbortSignal;
+    /** OpenAI-compatible only (Gemini, Mistral, …). Force au moins un appel d’outil quand des tools sont fournis. */
+    toolChoice?: "auto" | "required" | "none";
   }): AsyncGenerator<LlmStreamChunk>;
 }
 
