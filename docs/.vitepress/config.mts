@@ -20,6 +20,17 @@ export default defineConfig({
       port: 5174,
     },
   },
+  /**
+   * Obligatoire pour activer la recherche locale dans la barre de navigation :
+   * VitePress compile `__VP_LOCAL_SEARCH__` depuis ce themeConfig racine.
+   * Si `search` n’est défini que sous `locales.*.themeConfig`, le flag reste false
+   * → `.VPNavBarSearch` reste vide et ⌘K / le bouton hero ne peuvent pas ouvrir le modal.
+   */
+  themeConfig: {
+    search: {
+      provider: "local",
+    },
+  },
   locales: {
     root: {
       label: "Français",
