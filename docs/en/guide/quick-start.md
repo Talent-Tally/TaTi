@@ -16,8 +16,8 @@ Best for quickly testing a published release from the GitHub registry (`ghcr.io`
 
 ```bash
 mkdir tati && cd tati
-curl -fsSL -o docker-compose.yml https://raw.githubusercontent.com/JeffSouop/TaTi/main/docker-compose.dist.yml
-curl -fsSL -o .env.example https://raw.githubusercontent.com/JeffSouop/TaTi/main/.env.example
+curl -fsSL -o docker-compose.yml https://raw.githubusercontent.com/Talent-Tally/TaTi/main/docker-compose.dist.yml
+curl -fsSL -o .env.example https://raw.githubusercontent.com/Talent-Tally/TaTi/main/.env.example
 cp .env.example .env
 ```
 
@@ -45,7 +45,7 @@ Open `http://localhost:${APP_PORT:-3000}` (or your `APP_PORT`). After sign-in yo
 Best for contributing or debugging.
 
 ```bash
-git clone https://github.com/JeffSouop/TaTi.git
+git clone https://github.com/Talent-Tally/TaTi.git
 cd TaTi
 cp .env.example .env
 # Edit .env — at minimum DATABASE_URL consistent with Compose Postgres

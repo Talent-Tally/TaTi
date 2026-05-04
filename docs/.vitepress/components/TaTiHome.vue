@@ -242,9 +242,9 @@ const logoSrc = withBase("/tati-logo.png");
         <div class="om-footer-inner">
           <div>{{ t.footerTagline }}</div>
           <div class="om-footer-links">
-            <a href="https://github.com/JeffSouop/TaTi/issues">Issues</a>
-            <a href="https://github.com/JeffSouop/TaTi/releases">Releases</a>
-            <a href="https://github.com/JeffSouop/TaTi/actions">CI</a>
+            <a href="https://github.com/Talent-Tally/TaTi/issues">Issues</a>
+            <a href="https://github.com/Talent-Tally/TaTi/releases">Releases</a>
+            <a href="https://github.com/Talent-Tally/TaTi/actions">CI</a>
           </div>
         </div>
       </section>

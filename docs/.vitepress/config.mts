@@ -47,10 +47,10 @@ export default defineConfig({
           provider: "local",
         },
         editLink: {
-          pattern: "https://github.com/JeffSouop/TaTi/edit/main/docs/:path",
+          pattern: "https://github.com/Talent-Tally/TaTi/edit/main/docs/:path",
           text: "Modifier cette page sur GitHub",
         },
-        socialLinks: [{ icon: "github", link: "https://github.com/JeffSouop/TaTi" }],
+        socialLinks: [{ icon: "github", link: "https://github.com/Talent-Tally/TaTi" }],
         footer: {
           message: "TaTi — copilote IA delivery/ops • Documentation sous licence du dépôt",
           copyright: `© ${new Date().getFullYear()} Contributeurs TaTi`,
@@ -107,10 +107,10 @@ export default defineConfig({
           provider: "local",
         },
         editLink: {
-          pattern: "https://github.com/JeffSouop/TaTi/edit/main/docs/:path",
+          pattern: "https://github.com/Talent-Tally/TaTi/edit/main/docs/:path",
           text: "Edit this page on GitHub",
         },
-        socialLinks: [{ icon: "github", link: "https://github.com/JeffSouop/TaTi" }],
+        socialLinks: [{ icon: "github", link: "https://github.com/Talent-Tally/TaTi" }],
         footer: {
           message: "TaTi — delivery/ops copilot • Documentation under repository license",
           copyright: `© ${new Date().getFullYear()} TaTi contributors`,
@@ -167,10 +167,10 @@ export default defineConfig({
           provider: "local",
         },
         editLink: {
-          pattern: "https://github.com/JeffSouop/TaTi/edit/main/docs/:path",
+          pattern: "https://github.com/Talent-Tally/TaTi/edit/main/docs/:path",
           text: "在 GitHub 上编辑此页",
         },
-        socialLinks: [{ icon: "github", link: "https://github.com/JeffSouop/TaTi" }],
+        socialLinks: [{ icon: "github", link: "https://github.com/Talent-Tally/TaTi" }],
         footer: {
           message: "TaTi — 交付/运维副驾驶 • 文档遵循仓库许可",
           copyright: `© ${new Date().getFullYear()} TaTi 贡献者`,

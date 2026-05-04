@@ -16,7 +16,7 @@ Les deux injètent `TATI_AUTH_REQUIRED` et `TATI_SESSION_TTL_DAYS` dans le servi
 Les variables suivantes contrôlent **quel code** tourne en prod :
 
 - **`TATI_IMAGE_REGISTRY`** — préfixe du registre (ex. `ghcr.io/jeffsouop` en minuscules pour GitHub Container Registry).
-- **`TATI_IMAGE_TAG`** — tag aligné sur une [release](https://github.com/JeffSouop/TaTi/releases) ou `latest`.
+- **`TATI_IMAGE_TAG`** — tag aligné sur une [release](https://github.com/Talent-Tally/TaTi/releases) ou `latest`.
 
 Si vous forkez le dépôt et publiez vos propres images, mettez à jour ces deux clés en cohérence avec votre pipeline CI.
 
