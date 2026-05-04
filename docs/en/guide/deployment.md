@@ -16,7 +16,7 @@ Both inject `TATI_AUTH_REQUIRED` and `TATI_SESSION_TTL_DAYS` into the app servic
 These variables control **which code** runs in production:
 
 - **`TATI_IMAGE_REGISTRY`** — registry prefix (e.g. `ghcr.io/jeffsouop` lower-case for GHCR).
-- **`TATI_IMAGE_TAG`** — tag aligned with a [release](https://github.com/JeffSouop/TaTi/releases) or `latest`.
+- **`TATI_IMAGE_TAG`** — tag aligned with a [release](https://github.com/Talent-Tally/TaTi/releases) or `latest`.
 
 If you fork and publish your own images, keep both keys aligned with your CI pipeline.
 

@@ -12,8 +12,8 @@ Installation minimale:
 
 ```bash
 mkdir tati && cd tati
-curl -fsSL -o docker-compose.yml https://raw.githubusercontent.com/JeffSouop/TaTi/main/docker-compose.dist.yml
-curl -fsSL -o .env.example https://raw.githubusercontent.com/JeffSouop/TaTi/main/.env.example
+curl -fsSL -o docker-compose.yml https://raw.githubusercontent.com/Talent-Tally/TaTi/main/docker-compose.dist.yml
+curl -fsSL -o .env.example https://raw.githubusercontent.com/Talent-Tally/TaTi/main/.env.example
 cp .env.example .env
 # editer .env
 docker compose pull
