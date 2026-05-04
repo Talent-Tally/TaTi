@@ -54,5 +54,5 @@ Sans cette activation, l’artefact est bien produit, mais l’API de déploieme
 
 ## Besoin d’aide communautaire
 
-- [Issues GitHub](https://github.com/JeffSouop/TaTi/issues) — joignez version / tag d’image, extrait de logs **sans secrets**.
-- [Actions CI](https://github.com/JeffSouop/TaTi/actions) — vérifier si un problème est déjà traité sur `main`.
+- [Issues GitHub](https://github.com/Talent-Tally/TaTi/issues) — joignez version / tag d’image, extrait de logs **sans secrets**.
+- [Actions CI](https://github.com/Talent-Tally/TaTi/actions) — vérifier si un problème est déjà traité sur `main`.

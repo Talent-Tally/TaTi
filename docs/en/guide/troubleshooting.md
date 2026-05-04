@@ -54,5 +54,5 @@ Without this, the artifact builds but the Pages API returns 404.
 
 ## Community help
 
-- [GitHub Issues](https://github.com/JeffSouop/TaTi/issues) — include version / image tag, log excerpts **without secrets**.
-- [Actions CI](https://github.com/JeffSouop/TaTi/actions) — check if the issue is already handled on `main`.
+- [GitHub Issues](https://github.com/Talent-Tally/TaTi/issues) — include version / image tag, log excerpts **without secrets**.
+- [Actions CI](https://github.com/Talent-Tally/TaTi/actions) — check if the issue is already handled on `main`.
