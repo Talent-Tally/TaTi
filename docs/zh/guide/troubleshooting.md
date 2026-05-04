@@ -54,5 +54,5 @@ URL 常用 `host.docker.internal`，仅当：
 
 ## 社区求助
 
-- [GitHub Issues](https://github.com/JeffSouop/TaTi/issues) — 附版本/镜像标签、**不含密钥**的日志片段。
-- [Actions CI](https://github.com/JeffSouop/TaTi/actions) — 查看 `main` 是否已修复。
+- [GitHub Issues](https://github.com/Talent-Tally/TaTi/issues) — 附版本/镜像标签、**不含密钥**的日志片段。
+- [Actions CI](https://github.com/Talent-Tally/TaTi/actions) — 查看 `main` 是否已修复。

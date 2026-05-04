@@ -16,7 +16,7 @@
 以下变量控制生产环境**运行的代码**：
 
 - **`TATI_IMAGE_REGISTRY`** — 仓库前缀（如 GHCR 用小写 `ghcr.io/jeffsouop`）。
-- **`TATI_IMAGE_TAG`** — 与 [发行版](https://github.com/JeffSouop/TaTi/releases) 对齐的标签或 `latest`。
+- **`TATI_IMAGE_TAG`** — 与 [发行版](https://github.com/Talent-Tally/TaTi/releases) 对齐的标签或 `latest`。
 
 若 fork 并发布自有镜像，请与 CI 流水线保持这两项一致。
 

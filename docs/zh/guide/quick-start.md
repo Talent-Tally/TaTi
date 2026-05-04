@@ -16,8 +16,8 @@
 
 ```bash
 mkdir tati && cd tati
-curl -fsSL -o docker-compose.yml https://raw.githubusercontent.com/JeffSouop/TaTi/main/docker-compose.dist.yml
-curl -fsSL -o .env.example https://raw.githubusercontent.com/JeffSouop/TaTi/main/.env.example
+curl -fsSL -o docker-compose.yml https://raw.githubusercontent.com/Talent-Tally/TaTi/main/docker-compose.dist.yml
+curl -fsSL -o .env.example https://raw.githubusercontent.com/Talent-Tally/TaTi/main/.env.example
 cp .env.example .env
 ```
 
@@ -45,7 +45,7 @@ docker compose up -d
 适合贡献代码或调试。
 
 ```bash
-git clone https://github.com/JeffSouop/TaTi.git
+git clone https://github.com/Talent-Tally/TaTi.git
 cd TaTi
 cp .env.example .env
 # 编辑 .env — 至少保证 DATABASE_URL 与 Compose 内 Postgres 一致
