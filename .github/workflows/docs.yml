@@ -37,7 +37,7 @@ jobs:
       - name: Build docs
         env:
           # Pages projet : https://<user>.github.io/TaTi/
-          VITEPRESS_BASE: /TaTi/
+          VITEPRESS_BASE: /
         run: npm run docs:build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
