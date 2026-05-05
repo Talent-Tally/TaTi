@@ -248,6 +248,8 @@ export const Route = createFileRoute("/api/chat")({
           .eq("conversation_id", conversationId)
           .order("created_at", { ascending: true });
 
+        const abortSignal = request.signal;
+
         const stream = new ReadableStream<Uint8Array>({
           async start(controller) {
             const encoder = new TextEncoder();
@@ -393,6 +395,7 @@ export const Route = createFileRoute("/api/chat")({
               const loopBudget = Math.max(providerConfig.max_tool_iterations, 2);
               const seenToolSignatures = new Set<string>();
               let emittedAnyAssistantText = false;
+              let clientAborted = false;
 
               for (let iter = 0; iter < loopBudget; iter++) {
                 let assistantContent = "";
@@ -420,9 +423,11 @@ export const Route = createFileRoute("/api/chat")({
                   tools: toolsForCall,
                   temperature: providerConfig.temperature,
                   toolChoice: forceToolChoiceRequired ? "required" : undefined,
+                  signal: abortSignal,
                 });
 
                 for await (const chunk of generator) {
+                  if (abortSignal.aborted) break;
                   if (chunk.type === "text" && chunk.text) {
                     assistantContent += chunk.text;
                     emittedAnyAssistantText = true;
@@ -437,6 +442,27 @@ export const Route = createFileRoute("/api/chat")({
                     streamErrored = true;
                     break;
                   }
+                }
+
+                if (abortSignal.aborted) {
+                  clientAborted = true;
+                  if (assistantContent.trim()) {
+                    const { data: partialSaved } = await supabaseAdmin
+                      .from("messages")
+                      .insert({
+                        conversation_id: conversationId,
+                        user_id: user?.id ?? null,
+                        role: "assistant",
+                        content: assistantContent,
+                        tool_calls: null,
+                      })
+                      .select()
+                      .single();
+                    if (partialSaved) {
+                      send({ type: "message_saved", id: partialSaved.id, role: "assistant" });
+                    }
+                  }
+                  break;
                 }
 
                 if (streamErrored) {
@@ -480,6 +506,10 @@ export const Route = createFileRoute("/api/chat")({
 
                 // Execute tool calls
                 for (const tc of assistantToolCalls) {
+                  if (abortSignal.aborted) {
+                    clientAborted = true;
+                    break;
+                  }
                   const sig = toolCallSignature(tc);
                   const decoded = decodeToolName(tc.name);
                   const sessionEntry = decoded ? sessions.get(decoded.serverShortId) : undefined;
@@ -552,9 +582,11 @@ export const Route = createFileRoute("/api/chat")({
                     toolCallId: tc.id,
                   });
                 }
+
+                if (clientAborted) break;
               }
 
-              if (!emittedAnyAssistantText) {
+              if (!emittedAnyAssistantText && !clientAborted) {
                 const fallbackText =
                   "Je n’ai pas pu terminer toute l’analyse dans ce tour. Voici comment continuer efficacement: " +
                   "demande d’abord un profilage court (tables + row_count + période), puis un second tour pour les insights et graphiques.";
