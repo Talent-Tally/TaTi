@@ -399,7 +399,9 @@ export const Route = createFileRoute("/api/chat")({
                 const assistantToolCalls: LlmToolCall[] = [];
                 let streamErrored = false;
                 const baseToolsForCall =
-                  providerConfig.kind === "anthropic" ? compactToolsForAnthropic(allTools) : allTools;
+                  providerConfig.kind === "anthropic"
+                    ? compactToolsForAnthropic(allTools)
+                    : allTools;
                 const isFinalSynthesisIter = iter === loopBudget - 1;
                 const toolsForCall = isFinalSynthesisIter ? [] : baseToolsForCall;
 
