@@ -109,6 +109,18 @@ function userMessageSuggestsDataOrCatalogQuery(text: string): boolean {
   return false;
 }
 
+function stableStringify(value: unknown): string {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map((v) => stableStringify(v)).join(",")}]`;
+  const obj = value as Record<string, unknown>;
+  const keys = Object.keys(obj).sort();
+  return `{${keys.map((k) => `${JSON.stringify(k)}:${stableStringify(obj[k])}`).join(",")}}`;
+}
+
+function toolCallSignature(tc: LlmToolCall): string {
+  return `${tc.name}::${stableStringify(tc.arguments ?? {})}`;
+}
+
 export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
@@ -377,16 +389,19 @@ export const Route = createFileRoute("/api/chat")({
 
               // 7. Agent loop using the chosen adapter
               const adapter = getAdapter(providerConfig);
-              const maxIter = providerConfig.max_tool_iterations;
+              // Reserve the last loop for synthesis (no tools), to avoid ending with only tool calls.
+              const loopBudget = Math.max(providerConfig.max_tool_iterations, 2);
+              const seenToolSignatures = new Set<string>();
+              let emittedAnyAssistantText = false;
 
-              for (let iter = 0; iter < maxIter; iter++) {
+              for (let iter = 0; iter < loopBudget; iter++) {
                 let assistantContent = "";
                 const assistantToolCalls: LlmToolCall[] = [];
                 let streamErrored = false;
-                const toolsForCall =
-                  providerConfig.kind === "anthropic"
-                    ? compactToolsForAnthropic(allTools)
-                    : allTools;
+                const baseToolsForCall =
+                  providerConfig.kind === "anthropic" ? compactToolsForAnthropic(allTools) : allTools;
+                const isFinalSynthesisIter = iter === loopBudget - 1;
+                const toolsForCall = isFinalSynthesisIter ? [] : baseToolsForCall;
 
                 const kindNorm = String(providerConfig.kind ?? "")
                   .toLowerCase()
@@ -408,6 +423,7 @@ export const Route = createFileRoute("/api/chat")({
                 for await (const chunk of generator) {
                   if (chunk.type === "text" && chunk.text) {
                     assistantContent += chunk.text;
+                    emittedAnyAssistantText = true;
                     send({ type: "token", content: chunk.text });
                   } else if (chunk.type === "tool_call" && chunk.toolCall) {
                     assistantToolCalls.push(chunk.toolCall);
@@ -458,9 +474,11 @@ export const Route = createFileRoute("/api/chat")({
                 });
 
                 if (assistantToolCalls.length === 0) break;
+                if (isFinalSynthesisIter) break;
 
                 // Execute tool calls
                 for (const tc of assistantToolCalls) {
+                  const sig = toolCallSignature(tc);
                   const decoded = decodeToolName(tc.name);
                   const sessionEntry = decoded ? sessions.get(decoded.serverShortId) : undefined;
 
@@ -474,7 +492,10 @@ export const Route = createFileRoute("/api/chat")({
 
                   let toolResultText = "";
                   let toolError: string | undefined;
-                  if (!sessionEntry || !decoded) {
+                  if (seenToolSignatures.has(sig)) {
+                    toolError = "Duplicate tool call skipped to avoid infinite loop";
+                    toolResultText = JSON.stringify({ warning: toolError, tool: tc.name });
+                  } else if (!sessionEntry || !decoded) {
                     toolError = `Tool "${tc.name}" not found on any connected MCP server`;
                     toolResultText = JSON.stringify({ error: toolError });
                   } else {
@@ -493,6 +514,7 @@ export const Route = createFileRoute("/api/chat")({
                       toolResultText = JSON.stringify({ error: toolError });
                     }
                   }
+                  seenToolSignatures.add(sig);
 
                   send({
                     type: "tool_call_result",
@@ -527,6 +549,27 @@ export const Route = createFileRoute("/api/chat")({
                     content: toolResultText,
                     toolCallId: tc.id,
                   });
+                }
+              }
+
+              if (!emittedAnyAssistantText) {
+                const fallbackText =
+                  "Je n’ai pas pu terminer toute l’analyse dans ce tour. Voici comment continuer efficacement: " +
+                  "demande d’abord un profilage court (tables + row_count + période), puis un second tour pour les insights et graphiques.";
+                send({ type: "token", content: fallbackText });
+                const { data: fallbackSaved } = await supabaseAdmin
+                  .from("messages")
+                  .insert({
+                    conversation_id: conversationId,
+                    user_id: user?.id ?? null,
+                    role: "assistant",
+                    content: fallbackText,
+                    tool_calls: null,
+                  })
+                  .select()
+                  .single();
+                if (fallbackSaved) {
+                  send({ type: "message_saved", id: fallbackSaved.id, role: "assistant" });
                 }
               }
 
