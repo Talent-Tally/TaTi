@@ -5,7 +5,7 @@ import { ToolCallBubble, type ToolCallDisplay } from "@/components/ToolCallBubbl
 import { ConversationProviderSelector } from "@/components/ConversationProviderSelector";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, User, Bot, AlertTriangle, ArrowDown } from "lucide-react";
+import { Send, Bot, AlertTriangle, ArrowDown, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -59,6 +59,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const streamingMsgRef = useRef<{ id: string; text: string } | null>(null);
+  const chatAbortRef = useRef<AbortController | null>(null);
   const auth = useAuth();
 
   const isNearBottom = () => {
@@ -103,6 +104,10 @@ export function ChatView({ conversationId }: { conversationId: string }) {
     setShowScrollToBottom(!isNearBottom());
   };
 
+  const stopStreaming = () => {
+    chatAbortRef.current?.abort();
+  };
+
   const send = async () => {
     const text = input.trim();
     if (!text || streaming) return;
@@ -145,11 +150,15 @@ export function ChatView({ conversationId }: { conversationId: string }) {
       { type: "message", id: tempId, role: "assistant", content: "", streaming: true },
     ]);
 
+    const ac = new AbortController();
+    chatAbortRef.current = ac;
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ conversationId }),
+        signal: ac.signal,
       });
       if (!res.ok || !res.body) throw new Error(`Chat failed: ${res.status}`);
 
@@ -177,8 +186,14 @@ export function ChatView({ conversationId }: { conversationId: string }) {
         }
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Erreur de connexion");
+      const aborted =
+        (e instanceof DOMException && e.name === "AbortError") ||
+        (e instanceof Error && e.name === "AbortError");
+      if (!aborted) {
+        setError(e instanceof Error ? e.message : "Erreur de connexion");
+      }
     } finally {
+      chatAbortRef.current = null;
       setStreaming(false);
       streamingMsgRef.current = null;
       // Reload from DB to get final state with proper IDs
@@ -315,14 +330,28 @@ export function ChatView({ conversationId }: { conversationId: string }) {
             className="min-h-[48px] max-h-40 resize-none"
             disabled={streaming}
           />
-          <Button
-            onClick={send}
-            disabled={streaming || !input.trim()}
-            size="icon"
-            className="h-12 w-12 shrink-0"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
+          {streaming ? (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={stopStreaming}
+              className="h-12 shrink-0 gap-2 px-4"
+              aria-label="Arrêter la génération"
+            >
+              <Square className="h-3.5 w-3.5 fill-current" />
+              Arrêter
+            </Button>
+          ) : (
+            <Button
+              onClick={send}
+              disabled={!input.trim()}
+              size="icon"
+              className="h-12 w-12 shrink-0"
+              aria-label="Envoyer"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </div>
