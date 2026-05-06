@@ -109,80 +109,95 @@ function onKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div v-if="canUse" class="tati-doc-ai">
-    <button
-      v-if="!open"
-      type="button"
-      class="tati-doc-ai__fab"
-      aria-label="Ouvrir l’assistant documentation TaTi"
-      @click="open = true"
-    >
-      <span class="tati-doc-ai__fab-icon" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M12 2L13.09 8.26L19 7L14.74 12L19 17L13.09 15.74L12 22L10.91 15.74L5 17L9.26 12L5 7L10.91 8.26L12 2Z"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M19 3L19.5 5.5L22 6L19.5 6.5L19 9L18.5 6.5L16 6L18.5 5.5L19 3Z"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </span>
-      <span class="tati-doc-ai__fab-label">Assistant</span>
-    </button>
+  <!-- Teleport : même sur layout `page` (accueil), hors barres internes VitePress -->
+  <Teleport to="body">
+    <div class="tati-doc-ai">
+      <button
+        v-if="!open"
+        type="button"
+        class="tati-doc-ai__fab"
+        aria-label="Ouvrir l’assistant documentation TaTi"
+        @click="open = true"
+      >
+        <span class="tati-doc-ai__fab-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M12 2L13.09 8.26L19 7L14.74 12L19 17L13.09 15.74L12 22L10.91 15.74L5 17L9.26 12L5 7L10.91 8.26L12 2Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M19 3L19.5 5.5L22 6L19.5 6.5L19 9L18.5 6.5L16 6L18.5 5.5L19 3Z"
+              stroke="currentColor"
+              stroke-width="1.2"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+        <span class="tati-doc-ai__fab-label">Assistant</span>
+      </button>
 
-    <div v-else class="tati-doc-ai__panel" role="dialog" aria-modal="false" aria-label="Assistant documentation">
-      <header class="tati-doc-ai__head">
-        <div class="tati-doc-ai__head-text">
-          <h2 class="tati-doc-ai__title">Assistant TaTi</h2>
-          <p class="tati-doc-ai__subtitle">Documentation — questions sur la plateforme uniquement</p>
-        </div>
-        <button type="button" class="tati-doc-ai__close" aria-label="Fermer" @click="open = false">×</button>
-      </header>
+      <div v-else class="tati-doc-ai__panel" role="dialog" aria-modal="false" aria-label="Assistant documentation">
+        <header class="tati-doc-ai__head">
+          <div class="tati-doc-ai__head-text">
+            <h2 class="tati-doc-ai__title">Assistant TaTi</h2>
+            <p class="tati-doc-ai__subtitle">Documentation — questions sur la plateforme uniquement</p>
+          </div>
+          <button type="button" class="tati-doc-ai__close" aria-label="Fermer" @click="open = false">×</button>
+        </header>
 
-      <p class="tati-doc-ai__disclaimer">
-        Réponses générées — périmètre TaTi uniquement ; pour les opérations sensibles, suivre les guides et le dépôt
-        <a href="https://github.com/Talent-Tally/TaTi" rel="noopener noreferrer">GitHub</a>. Présentation inspirée des
-        docs produit (OpenMetadata, Dagster)&nbsp;: réponses courtes, orientées procédure.
-      </p>
+        <template v-if="!canUse">
+          <div class="tati-doc-ai__setup">
+            <p><strong>Relais non configuré.</strong> Le bouton reste visible sur toutes les pages ; pour activer le chat, définis l’URL du Worker Cloudflare au build ou en dev&nbsp;:</p>
+            <ul>
+              <li>Locale&nbsp;: <code>VITE_DOCS_CHAT_WORKER_URL=http://localhost:8787</code> (voir <code>.env.example</code>)</li>
+              <li>GitHub Pages&nbsp;: variable dépôt <code>VITE_DOCS_CHAT_WORKER_URL</code> + worker déployé (<code>workers/tati-docs-chat/README.md</code>)</li>
+            </ul>
+          </div>
+        </template>
 
-      <div ref="listRef" class="tati-doc-ai__messages">
-        <p v-if="messages.length === 0" class="tati-doc-ai__empty">
-          Pose une question sur l’installation, le déploiement, MCP, la configuration ou l’architecture TaTi.
-        </p>
-        <div
-          v-for="(m, i) in messages"
-          :key="i"
-          class="tati-doc-ai__msg"
-          :class="m.role === 'user' ? 'tati-doc-ai__msg--user' : 'tati-doc-ai__msg--assistant'"
-        >
-          <span class="tati-doc-ai__msg-role">{{ m.role === "user" ? "Vous" : "TaTi" }}</span>
-          <div class="tati-doc-ai__msg-body">{{ m.content }}</div>
-        </div>
-      </div>
+        <template v-else>
+          <p class="tati-doc-ai__disclaimer">
+            Réponses générées — périmètre TaTi uniquement ; pour les opérations sensibles, suivre les guides et le dépôt
+            <a href="https://github.com/Talent-Tally/TaTi" rel="noopener noreferrer">GitHub</a>. Présentation inspirée des
+            docs produit (OpenMetadata, Dagster)&nbsp;: réponses courtes, orientées procédure.
+          </p>
 
-      <p v-if="error" class="tati-doc-ai__error">{{ error }}</p>
+          <div ref="listRef" class="tati-doc-ai__messages">
+            <p v-if="messages.length === 0" class="tati-doc-ai__empty">
+              Pose une question sur l’installation, le déploiement, MCP, la configuration ou l’architecture TaTi.
+            </p>
+            <div
+              v-for="(m, i) in messages"
+              :key="i"
+              class="tati-doc-ai__msg"
+              :class="m.role === 'user' ? 'tati-doc-ai__msg--user' : 'tati-doc-ai__msg--assistant'"
+            >
+              <span class="tati-doc-ai__msg-role">{{ m.role === "user" ? "Vous" : "TaTi" }}</span>
+              <div class="tati-doc-ai__msg-body">{{ m.content }}</div>
+            </div>
+          </div>
 
-      <div class="tati-doc-ai__composer">
-        <textarea
-          v-model="input"
-          class="tati-doc-ai__input"
-          rows="2"
-          placeholder="Ex. Comment configurer les serveurs MCP ?"
-          :disabled="loading"
-          @keydown="onKeydown"
-        />
-        <button type="button" class="tati-doc-ai__send" :disabled="loading || !input.trim()" @click="send">
-          {{ loading ? "…" : "Envoyer" }}
-        </button>
+          <p v-if="error" class="tati-doc-ai__error">{{ error }}</p>
+
+          <div class="tati-doc-ai__composer">
+            <textarea
+              v-model="input"
+              class="tati-doc-ai__input"
+              rows="2"
+              placeholder="Ex. Comment configurer les serveurs MCP ?"
+              :disabled="loading"
+              @keydown="onKeydown"
+            />
+            <button type="button" class="tati-doc-ai__send" :disabled="loading || !input.trim()" @click="send">
+              {{ loading ? "…" : "Envoyer" }}
+            </button>
+          </div>
+        </template>
       </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -190,7 +205,29 @@ function onKeydown(e: KeyboardEvent) {
   --tati-ai-radius: var(--om-radius-lg, 16px);
   --tati-ai-shadow: var(--om-shadow-card, 0 8px 24px rgba(15, 23, 42, 0.12));
   font-family: var(--vp-font-family-base);
-  z-index: 9999;
+  /* Au-dessus modale recherche VitePress / nav */
+  z-index: 2147483000;
+}
+
+.tati-doc-ai__setup {
+  margin: 0;
+  padding: 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--vp-c-text-1);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.tati-doc-ai__setup ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.tati-doc-ai__setup code {
+  font-size: 0.75rem;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--vp-c-bg-soft);
 }
 
 .tati-doc-ai__fab {
