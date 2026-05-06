@@ -1,0 +1,18 @@
+# Worker relais doc TaTi → Anthropic. La clé reste dans Cloudflare (Secrets Store), jamais dans le site statique.
+name = "tati-docs-chat"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+# Secret créé dans le dashboard : Storage & databases → Secrets Store (ID en haut de page).
+[[secrets_store_secrets]]
+binding = "ANTHROPIC_API_KEY"
+store_id = "1a7d2e9e56c843e3817dd1bbfb987cc4"
+secret_name = "ANTHROPIC_API_KEY"
+
+# Alternative sans Secrets Store : commente le bloc ci-dessus et exécute
+#   npx wrangler secret put ANTHROPIC_API_KEY
+
+[vars]
+ANTHROPIC_MODEL = "claude-sonnet-4-20250514"
+# En prod, mets l’URL exacte du site doc (GitHub Pages ou domaine custom) pour CORS :
+ALLOWED_ORIGIN = "https://tati.blog"

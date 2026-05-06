@@ -14,6 +14,7 @@ export default tseslint.config(
       ".vinxi",
       "docs/.vitepress/cache/**",
       "docs/.vitepress/dist/**",
+      "workers/**",
     ],
   },
   {
