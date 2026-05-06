@@ -1,0 +1,11 @@
+{
+  "name": "tati-docs-chat",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev --config ./wrangler.toml",
+    "deploy": "wrangler deploy --config ./wrangler.toml"
+  },
+  "devDependencies": {
+    "wrangler": "^4.54.0"
+  }
+}
