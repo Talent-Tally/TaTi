@@ -65,7 +65,9 @@ function sanitizeMessages(raw: unknown): Array<{ role: "user" | "assistant"; con
   return out;
 }
 
-async function* streamAnthropicText(body: ReadableStream<Uint8Array> | null): AsyncGenerator<string> {
+async function* streamAnthropicText(
+  body: ReadableStream<Uint8Array> | null,
+): AsyncGenerator<string> {
   if (!body) return;
   const reader = body.getReader();
   const dec = new TextDecoder();
