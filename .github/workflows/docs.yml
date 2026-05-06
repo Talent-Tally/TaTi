@@ -10,6 +10,7 @@ on:
       - ".github/workflows/docs.yml"
       - "package.json"
       - "package-lock.json"
+      - "workers/tati-docs-chat/**"
   workflow_dispatch:
 
 permissions:
@@ -38,6 +39,8 @@ jobs:
         env:
           # Pages projet : https://<user>.github.io/TaTi/
           VITEPRESS_BASE: /
+          # Variable dépôt (Settings → Variables) : URL du worker sans /chat
+          VITE_DOCS_CHAT_WORKER_URL: ${{ vars.VITE_DOCS_CHAT_WORKER_URL }}
         run: npm run docs:build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
