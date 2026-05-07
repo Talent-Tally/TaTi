@@ -8,18 +8,17 @@ Les **ports** ci‑dessous sont les **ports hôte par défaut** du fichier `.env
 
 ## Architecture MCP (vue d'ensemble)
 
-<div style="display:grid;grid-template-columns:minmax(320px,1.2fr) minmax(260px,1fr);gap:1rem;align-items:start;margin:1rem 0;">
+<div style="margin:1rem 0;">
   <img src="/diagrams/mcp_architecture_v2.svg" alt="Architecture MCP v2" style="width:100%;height:auto;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-soft);padding:0.5rem;" />
-  <div>
-    <p><strong>Ce schéma montre la séparation des responsabilités :</strong></p>
-    <ul>
-      <li><strong>TaTi UI / API</strong> : orchestre la conversation, choisit les outils à appeler et consolide les réponses.</li>
-      <li><strong>Serveurs MCP</strong> : exposent des capacités spécialisées (Slack, GitHub, DB, cloud, observabilité) via une interface MCP homogène.</li>
-      <li><strong>Systèmes cibles</strong> : restent derrière les connecteurs MCP, avec leurs permissions, tokens et garde-fous.</li>
-      <li><strong>Bénéfice principal</strong> : ajouter un nouveau domaine se fait en branchant un serveur MCP, sans modifier le coeur de TaTi.</li>
-    </ul>
-  </div>
 </div>
+
+<p><strong>Ce schéma montre la séparation des responsabilités :</strong></p>
+<ul>
+  <li><strong>TaTi UI / API</strong> : orchestre la conversation, choisit les outils à appeler et consolide les réponses.</li>
+  <li><strong>Serveurs MCP</strong> : exposent des capacités spécialisées (Slack, GitHub, DB, cloud, observabilité) via une interface MCP homogène.</li>
+  <li><strong>Systèmes cibles</strong> : restent derrière les connecteurs MCP, avec leurs permissions, tokens et garde-fous.</li>
+  <li><strong>Bénéfice principal</strong> : ajouter un nouveau domaine se fait en branchant un serveur MCP, sans modifier le coeur de TaTi.</li>
+</ul>
 
 ## Flux d'appel MCP (pas à pas)
 
