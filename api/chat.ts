@@ -171,7 +171,9 @@ export default async function handler(req: Request): Promise<Response> {
                   encoder.encode(sse({ type: "error", message: evt.error.message })),
                 );
               }
-            } catch {}
+            } catch {
+              continue;
+            }
           }
         }
       } catch {
