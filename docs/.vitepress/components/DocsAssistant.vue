@@ -176,15 +176,25 @@ function formatContent(text: string): string {
       "
       @click="toggle"
     >
-      <svg class="docs-ai-sparkles" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-        <!-- Etoile en forme de croix -->
+      <svg class="docs-ai-sparkles" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="docs-ai-gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffec66" />
+            <stop offset="50%" stop-color="#f5c400" />
+            <stop offset="100%" stop-color="#cc7a00" />
+          </linearGradient>
+        </defs>
         <path
-          class="docs-ai-star-cross"
-          d="M16 4c.5 0 .9.4.9.9v7.7h7.7c.5 0 .9.4.9.9s-.4.9-.9.9h-7.7v7.7c0 .5-.4.9-.9.9s-.9-.4-.9-.9v-7.7H7.4c-.5 0-.9-.4-.9-.9s.4-.9.9-.9h7.7V4.9c0-.5.4-.9.9-.9z"
+          class="docs-ai-star-main"
+          d="M22 6.5c.6 0 1 .4 1 1v12.2c0 7.5 5.8 13.5 13.1 13.5h12.4c.6 0 1 .4 1 1s-.4 1-1 1H36.1C28.8 35.2 23 41.2 23 48.7V61c0 .6-.4 1-1 1s-1-.4-1-1V48.7c0-7.5-5.8-13.5-13.1-13.5H-4.5c-.6 0-1-.4-1-1s.4-1 1-1H7.9C15.2 33.2 21 27.2 21 19.7V7.5c0-.6.4-1 1-1z"
         />
         <path
-          class="docs-ai-star-cross-soft"
-          d="M23.6 6.8c.3.3.3.9 0 1.2l-2.5 2.5 2.5 2.5c.3.3.3.9 0 1.2s-.9.3-1.2 0l-2.5-2.5-2.5 2.5c-.3.3-.9.3-1.2 0s-.3-.9 0-1.2l2.5-2.5-2.5-2.5c-.3-.3-.3-.9 0-1.2s.9-.3 1.2 0l2.5 2.5L22.4 6.8c.3-.3.9-.3 1.2 0z"
+          class="docs-ai-star-small"
+          d="M42 10.5c.5 0 .9.4.9.9v4.7c0 2.7 2 4.8 4.6 4.8h4.8c.5 0 .9.4.9.9s-.4.9-.9.9h-4.8c-2.6 0-4.6 2.2-4.6 4.8v4.7c0 .5-.4.9-.9.9s-.9-.4-.9-.9v-4.7c0-2.6-2-4.8-4.6-4.8h-4.8c-.5 0-.9-.4-.9-.9s.4-.9.9-.9h4.8c2.6 0 4.6-2.1 4.6-4.8v-4.7c0-.5.4-.9.9-.9z"
+        />
+        <path
+          class="docs-ai-star-small docs-ai-star-small-2"
+          d="M51 23.5c.5 0 .9.4.9.9v4.3c0 2.3 1.8 4.2 4.1 4.2h4.3c.5 0 .9.4.9.9s-.4.9-.9.9H56c-2.3 0-4.1 1.9-4.1 4.2v4.3c0 .5-.4.9-.9.9s-.9-.4-.9-.9V39c0-2.3-1.8-4.2-4.1-4.2h-4.3c-.5 0-.9-.4-.9-.9s.4-.9.9-.9H46c2.3 0 4.1-1.9 4.1-4.2v-4.3c0-.5.4-.9.9-.9z"
         />
       </svg>
     </button>
@@ -289,22 +299,28 @@ function formatContent(text: string): string {
 }
 
 .docs-ai-sparkles {
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 2rem;
+  height: 2rem;
   overflow: visible;
 }
 
-.docs-ai-star-cross,
-.docs-ai-star-cross-soft {
-  fill: currentColor;
+.docs-ai-star-main,
+.docs-ai-star-small {
+  fill: url(#docs-ai-gold-gradient);
 }
 
-.docs-ai-star-cross {
-  opacity: 1;
+.docs-ai-star-main {
+  transform: translate(8px, -2px) scale(0.66);
 }
 
-.docs-ai-star-cross-soft {
-  opacity: 0.38;
+.docs-ai-star-small {
+  transform: translate(7px, -1px) scale(0.88);
+  opacity: 0.98;
+}
+
+.docs-ai-star-small-2 {
+  transform: translate(6px, -1px) scale(0.82);
+  opacity: 0.95;
 }
 
 .docs-ai-panel {
