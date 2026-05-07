@@ -1,7 +1,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  // Variables Vite / VitePress spécifiques au projet (ajouter ici si besoin).
+  // URL de base du backend assistant docs (ex: https://mon-proxy.vercel.app/api)
+  readonly VITE_DOCS_CHAT_WORKER_URL?: string;
 }
 
 interface ImportMeta {
