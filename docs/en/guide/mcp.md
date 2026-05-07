@@ -6,6 +6,38 @@ TaTi does not embed all integration logic in the web binary: each domain (Slack,
 The **ports** below are **default host ports** from `.env.example`. You can change them: keep `.env`, `docker compose`, and the URL saved in TaTi consistent (e.g. if you change `MCP_SLACK_PORT`, `http://localhost:…/mcp` changes too).
 :::
 
+
+## MCP architecture (overview)
+
+<div style="margin:1rem 0;">
+  <img src="/diagrams/mcp_architecture_v2.svg" alt="MCP architecture v2" style="width:100%;height:auto;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-soft);padding:0.5rem;" />
+</div>
+
+<p><strong>This diagram highlights the separation of responsibilities:</strong></p>
+<ul>
+  <li><strong>TaTi UI / API</strong>: orchestrates the conversation, decides which tools to call, and consolidates outputs.</li>
+  <li><strong>MCP servers</strong>: expose specialized capabilities (Slack, GitHub, DB, cloud, observability) through a uniform MCP interface.</li>
+  <li><strong>Target systems</strong>: remain behind MCP connectors, with their own permissions, tokens, and guardrails.</li>
+  <li><strong>Main benefit</strong>: add a new business domain by plugging a new MCP server, without changing TaTi core.</li>
+</ul>
+
+## MCP call flow (step by step)
+
+<div style="display:grid;grid-template-columns:minmax(320px,1.2fr) minmax(260px,1fr);gap:1rem;align-items:start;margin:1rem 0 1.5rem;">
+  <img src="/diagrams/mcp_call_flow_v2.svg" alt="MCP call flow v2" style="width:100%;height:auto;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-soft);padding:0.5rem;" />
+  <div>
+    <p><strong>Typical MCP call execution cycle:</strong></p>
+    <ol>
+      <li>The user sends a request in TaTi.</li>
+      <li>The model decides an MCP tool is needed (for example dashboard, SQL, ticket, observability).</li>
+      <li>TaTi calls the relevant MCP server with the useful context.</li>
+      <li>The MCP server executes the action on the external system and returns a structured result.</li>
+      <li>TaTi reformulates the final answer for the user using retrieved data.</li>
+    </ol>
+    <p><strong>Security note:</strong> effective permissions are those of the server token/account, not model permissions.</p>
+  </div>
+</div>
+
 ## Summary table
 
 | Connector               | Host port (default)  | Typical URL (Compose network)       | Key variables                                                            |
