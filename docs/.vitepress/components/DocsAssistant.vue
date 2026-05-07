@@ -126,9 +126,7 @@ async function send(rawText?: string) {
             } else if (evt.type === "error" && evt.message) {
               error.value = evt.message;
             }
-          } catch {
-            /* ignore */
-          }
+          } catch {}
         }
       }
     }
