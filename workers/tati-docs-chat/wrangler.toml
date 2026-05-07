@@ -1,0 +1,10 @@
+# Worker relais : la clé Anthropic est uniquement dans les secrets Cloudflare
+# (wrangler secret put ANTHROPIC_API_KEY), jamais dans le bundle VitePress.
+name = "tati-docs-chat"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[vars]
+ANTHROPIC_MODEL = "claude-sonnet-4-5-20250929"
+# Optionnel : restreindre CORS (ex. https://ton-org.github.io). Vide = *.
+# ALLOWED_ORIGIN = ""
