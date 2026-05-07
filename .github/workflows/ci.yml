@@ -91,6 +91,10 @@ jobs:
           : > /tmp/changed_files_for_checks
           : > /tmp/changed_files_for_lint
           while IFS= read -r -d '' file; do
+            # Fichiers supprimés : encore listés par git diff mais absents du disque → eslint/prettier plantent.
+            if [ ! -e "$file" ]; then
+              continue
+            fi
             case "$file" in
               coverage/*|test-results/*|playwright-report/*|dist/*|.output/*|.vinxi/*)
                 continue
