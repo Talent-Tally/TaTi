@@ -6,6 +6,39 @@ TaTi ne « embarque » pas toute la logique des intégrations dans le binaire we
 Les **ports** ci‑dessous sont les **ports hôte par défaut** du fichier `.env.example`. Ils sont modifiables : gardez la cohérence entre `.env`, `docker compose` et l’URL enregistrée dans TaTi (ex. si vous changez `MCP_SLACK_PORT`, l’URL `http://localhost:…/mcp` change aussi).
 :::
 
+
+## Architecture MCP (vue d'ensemble)
+
+<div style="display:grid;grid-template-columns:minmax(320px,1.2fr) minmax(260px,1fr);gap:1rem;align-items:start;margin:1rem 0;">
+  <img src="/diagrams/mcp_architecture_v2.svg" alt="Architecture MCP v2" style="width:100%;height:auto;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-soft);padding:0.5rem;" />
+  <div>
+    <p><strong>Ce schéma montre la séparation des responsabilités :</strong></p>
+    <ul>
+      <li><strong>TaTi UI / API</strong> : orchestre la conversation, choisit les outils à appeler et consolide les réponses.</li>
+      <li><strong>Serveurs MCP</strong> : exposent des capacités spécialisées (Slack, GitHub, DB, cloud, observabilité) via une interface MCP homogène.</li>
+      <li><strong>Systèmes cibles</strong> : restent derrière les connecteurs MCP, avec leurs permissions, tokens et garde-fous.</li>
+      <li><strong>Bénéfice principal</strong> : ajouter un nouveau domaine se fait en branchant un serveur MCP, sans modifier le coeur de TaTi.</li>
+    </ul>
+  </div>
+</div>
+
+## Flux d'appel MCP (pas à pas)
+
+<div style="display:grid;grid-template-columns:minmax(320px,1.2fr) minmax(260px,1fr);gap:1rem;align-items:start;margin:1rem 0 1.5rem;">
+  <img src="/diagrams/mcp_call_flow_v2.svg" alt="Flux d'appel MCP v2" style="width:100%;height:auto;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-soft);padding:0.5rem;" />
+  <div>
+    <p><strong>Cycle d'execution typique d'un appel MCP :</strong></p>
+    <ol>
+      <li>L'utilisateur envoie une demande dans TaTi.</li>
+      <li>Le modèle décide qu'un outil MCP est nécessaire (ex. dashboard, SQL, ticket, observabilité).</li>
+      <li>TaTi appelle le serveur MCP concerné avec le contexte utile.</li>
+      <li>Le serveur MCP exécute l'action sur le système externe puis retourne un résultat structuré.</li>
+      <li>TaTi reformule la réponse finale utilisateur avec les données récupérées.</li>
+    </ol>
+    <p><strong>Point sécurité :</strong> les droits effectifs sont ceux du token/compte du serveur MCP, pas des droits du modèle.</p>
+  </div>
+</div>
+
 ## Tableau récapitulatif
 
 | Connecteur            | Port hôte (défaut)  | URL type (dans le réseau Compose)   | Variables clés                                                           |
