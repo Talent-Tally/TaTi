@@ -38,6 +38,8 @@ jobs:
         env:
           # Pages projet : https://<user>.github.io/TaTi/
           VITEPRESS_BASE: /
+          # URL publique du proxy assistant docs (ex: https://<project>.vercel.app/api)
+          VITE_DOCS_CHAT_WORKER_URL: ${{ vars.VITE_DOCS_CHAT_WORKER_URL }}
         run: npm run docs:build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
