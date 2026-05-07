@@ -6,7 +6,6 @@ TaTi does not embed all integration logic in the web binary: each domain (Slack,
 The **ports** below are **default host ports** from `.env.example`. You can change them: keep `.env`, `docker compose`, and the URL saved in TaTi consistent (e.g. if you change `MCP_SLACK_PORT`, `http://localhost:…/mcp` changes too).
 :::
 
-
 ## MCP architecture (overview)
 
 <div style="margin:1rem 0;">
