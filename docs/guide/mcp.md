@@ -22,20 +22,19 @@ Les **ports** ci‑dessous sont les **ports hôte par défaut** du fichier `.env
 
 ## Flux d'appel MCP (pas à pas)
 
-<div style="display:grid;grid-template-columns:minmax(320px,1.2fr) minmax(260px,1fr);gap:1rem;align-items:start;margin:1rem 0 1.5rem;">
+<div style="margin:1rem 0;">
   <img src="/diagrams/mcp_call_flow_v2.svg" alt="Flux d'appel MCP v2" style="width:100%;height:auto;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-soft);padding:0.5rem;" />
-  <div>
-    <p><strong>Cycle d'execution typique d'un appel MCP :</strong></p>
-    <ol>
-      <li>L'utilisateur envoie une demande dans TaTi.</li>
-      <li>Le modèle décide qu'un outil MCP est nécessaire (ex. dashboard, SQL, ticket, observabilité).</li>
-      <li>TaTi appelle le serveur MCP concerné avec le contexte utile.</li>
-      <li>Le serveur MCP exécute l'action sur le système externe puis retourne un résultat structuré.</li>
-      <li>TaTi reformule la réponse finale utilisateur avec les données récupérées.</li>
-    </ol>
-    <p><strong>Point sécurité :</strong> les droits effectifs sont ceux du token/compte du serveur MCP, pas des droits du modèle.</p>
-  </div>
 </div>
+
+<p><strong>Cycle d'execution typique d'un appel MCP :</strong></p>
+<ol>
+  <li>L'utilisateur envoie une demande dans TaTi.</li>
+  <li>Le modèle décide qu'un outil MCP est nécessaire (ex. dashboard, SQL, ticket, observabilité).</li>
+  <li>TaTi appelle le serveur MCP concerné avec le contexte utile.</li>
+  <li>Le serveur MCP exécute l'action sur le système externe puis retourne un résultat structuré.</li>
+  <li>TaTi reformule la réponse finale utilisateur avec les données récupérées.</li>
+</ol>
+<p><strong>Point sécurité :</strong> les droits effectifs sont ceux du token/compte du serveur MCP, pas des droits du modèle.</p>
 
 ## Tableau récapitulatif
 
