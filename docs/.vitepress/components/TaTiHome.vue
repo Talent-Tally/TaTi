@@ -40,6 +40,11 @@ function openSearch(e?: MouseEvent) {
 }
 
 const logoSrc = withBase("/tati-logo.png");
+
+function chipIconSrc(icon: string): string {
+  if (icon === "auth") return withBase("/home/guide-icons/security.svg");
+  return withBase(`/icons/brands/${icon}.svg`);
+}
 </script>
 
 <template>
@@ -93,6 +98,7 @@ const logoSrc = withBase("/tati-logo.png");
             role="listitem"
             :href="localePath(c.href)"
           >
+            <img class="om-chip-icon" :src="chipIconSrc(c.icon)" alt="" loading="lazy" decoding="async" />
             {{ c.label }}
           </a>
         </div>
@@ -416,6 +422,7 @@ const logoSrc = withBase("/tati-logo.png");
 .om-chip {
   display: inline-flex;
   align-items: center;
+  gap: 0.38rem;
   padding: 0.4rem 0.85rem;
   border-radius: 999px;
   font-size: 0.8rem;
@@ -429,6 +436,13 @@ const logoSrc = withBase("/tati-logo.png");
     border-color var(--om-duration) var(--om-ease),
     transform var(--om-duration) var(--om-ease),
     box-shadow var(--om-duration-relaxed) var(--om-ease);
+}
+
+.om-chip-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .om-chip:hover {

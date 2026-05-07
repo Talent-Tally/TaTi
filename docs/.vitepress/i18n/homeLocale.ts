@@ -50,7 +50,7 @@ export type HomeCopy = {
   exploreDesc: string;
   exploreCards: { title: string; desc: string; href: string }[];
   footerTagline: string;
-  chips: { label: string; href: string }[];
+  chips: { label: string; href: string; icon: string }[];
 };
 
 const GUIDE_PATHS = {
@@ -66,9 +66,9 @@ const GUIDE_PATHS = {
 export const HOME_LOCALE: Record<HomeLocaleKey, HomeCopy> = {
   fr: {
     eyebrow: "Documentation TaTi",
-    heroBefore: "Libérez la",
-    heroGradient: "puissance",
-    heroAfter: "du copilote delivery & ops",
+    heroBefore: "Pilotez vos",
+    heroGradient: "opérations",
+    heroAfter: "avec un copilote vraiment connecté",
     leadHtml:
       "Une plateforme open source qui relie vos outils réels (Slack, Postgres, OpenMetadata, clouds, observabilité…) au travers du <strong>Model Context Protocol</strong>. Installez avec Docker, configurez les jetons, puis laissez vos équipes chatter avec un contexte métier à jour.",
     searchAria: "Rechercher dans la documentation",
@@ -245,16 +245,16 @@ export const HOME_LOCALE: Record<HomeLocaleKey, HomeCopy> = {
     ],
     footerTagline: "TaTi — documentation versionnée avec le code.",
     chips: [
-      { label: "PostgreSQL", href: `${GUIDE_PATHS.mcp}#mcp-postgresql` },
-      { label: "Slack", href: `${GUIDE_PATHS.mcp}#mcp-slack` },
-      { label: "GitHub", href: `${GUIDE_PATHS.mcp}#mcp-github` },
-      { label: "OpenMetadata", href: `${GUIDE_PATHS.mcp}#mcp-openmetadata` },
-      { label: "Grafana", href: `${GUIDE_PATHS.mcp}#mcp-grafana` },
-      { label: "Dagster", href: `${GUIDE_PATHS.mcp}#mcp-dagster` },
-      { label: "Airflow", href: `${GUIDE_PATHS.mcp}#mcp-airflow` },
-      { label: "dbt", href: `${GUIDE_PATHS.mcp}#mcp-dbt` },
-      { label: "dbt Core", href: `${GUIDE_PATHS.mcp}#mcp-dbt-core` },
-      { label: "Auth", href: GUIDE_PATHS.sec },
+      { label: "PostgreSQL", href: `${GUIDE_PATHS.mcp}#mcp-postgresql`, icon: "postgresql" },
+      { label: "Slack", href: `${GUIDE_PATHS.mcp}#mcp-slack`, icon: "slack" },
+      { label: "GitHub", href: `${GUIDE_PATHS.mcp}#mcp-github`, icon: "github" },
+      { label: "OpenMetadata", href: `${GUIDE_PATHS.mcp}#mcp-openmetadata`, icon: "openmetadata" },
+      { label: "Grafana", href: `${GUIDE_PATHS.mcp}#mcp-grafana`, icon: "grafana" },
+      { label: "Dagster", href: `${GUIDE_PATHS.mcp}#mcp-dagster`, icon: "dagster" },
+      { label: "Airflow", href: `${GUIDE_PATHS.mcp}#mcp-airflow`, icon: "airflow" },
+      { label: "dbt", href: `${GUIDE_PATHS.mcp}#mcp-dbt`, icon: "dbt" },
+      { label: "dbt Core", href: `${GUIDE_PATHS.mcp}#mcp-dbt-core`, icon: "dbt" },
+      { label: "Auth", href: GUIDE_PATHS.sec, icon: "auth" },
     ],
   },
 
@@ -439,16 +439,16 @@ export const HOME_LOCALE: Record<HomeLocaleKey, HomeCopy> = {
     ],
     footerTagline: "TaTi — documentation versioned with the code.",
     chips: [
-      { label: "PostgreSQL", href: `${GUIDE_PATHS.mcp}#mcp-postgresql` },
-      { label: "Slack", href: `${GUIDE_PATHS.mcp}#mcp-slack` },
-      { label: "GitHub", href: `${GUIDE_PATHS.mcp}#mcp-github` },
-      { label: "OpenMetadata", href: `${GUIDE_PATHS.mcp}#mcp-openmetadata` },
-      { label: "Grafana", href: `${GUIDE_PATHS.mcp}#mcp-grafana` },
-      { label: "Dagster", href: `${GUIDE_PATHS.mcp}#mcp-dagster` },
-      { label: "Airflow", href: `${GUIDE_PATHS.mcp}#mcp-airflow` },
-      { label: "dbt", href: `${GUIDE_PATHS.mcp}#mcp-dbt` },
-      { label: "dbt Core", href: `${GUIDE_PATHS.mcp}#mcp-dbt-core` },
-      { label: "Auth", href: GUIDE_PATHS.sec },
+      { label: "PostgreSQL", href: `${GUIDE_PATHS.mcp}#mcp-postgresql`, icon: "postgresql" },
+      { label: "Slack", href: `${GUIDE_PATHS.mcp}#mcp-slack`, icon: "slack" },
+      { label: "GitHub", href: `${GUIDE_PATHS.mcp}#mcp-github`, icon: "github" },
+      { label: "OpenMetadata", href: `${GUIDE_PATHS.mcp}#mcp-openmetadata`, icon: "openmetadata" },
+      { label: "Grafana", href: `${GUIDE_PATHS.mcp}#mcp-grafana`, icon: "grafana" },
+      { label: "Dagster", href: `${GUIDE_PATHS.mcp}#mcp-dagster`, icon: "dagster" },
+      { label: "Airflow", href: `${GUIDE_PATHS.mcp}#mcp-airflow`, icon: "airflow" },
+      { label: "dbt", href: `${GUIDE_PATHS.mcp}#mcp-dbt`, icon: "dbt" },
+      { label: "dbt Core", href: `${GUIDE_PATHS.mcp}#mcp-dbt-core`, icon: "dbt" },
+      { label: "Auth", href: GUIDE_PATHS.sec, icon: "auth" },
     ],
   },
 
@@ -606,16 +606,16 @@ export const HOME_LOCALE: Record<HomeLocaleKey, HomeCopy> = {
     ],
     footerTagline: "TaTi — 文档与代码同源版本管理。",
     chips: [
-      { label: "PostgreSQL", href: `${GUIDE_PATHS.mcp}#mcp-postgresql` },
-      { label: "Slack", href: `${GUIDE_PATHS.mcp}#mcp-slack` },
-      { label: "GitHub", href: `${GUIDE_PATHS.mcp}#mcp-github` },
-      { label: "OpenMetadata", href: `${GUIDE_PATHS.mcp}#mcp-openmetadata` },
-      { label: "Grafana", href: `${GUIDE_PATHS.mcp}#mcp-grafana` },
-      { label: "Dagster", href: `${GUIDE_PATHS.mcp}#mcp-dagster` },
-      { label: "Airflow", href: `${GUIDE_PATHS.mcp}#mcp-airflow` },
-      { label: "dbt", href: `${GUIDE_PATHS.mcp}#mcp-dbt` },
-      { label: "dbt Core", href: `${GUIDE_PATHS.mcp}#mcp-dbt-core` },
-      { label: "认证", href: GUIDE_PATHS.sec },
+      { label: "PostgreSQL", href: `${GUIDE_PATHS.mcp}#mcp-postgresql`, icon: "postgresql" },
+      { label: "Slack", href: `${GUIDE_PATHS.mcp}#mcp-slack`, icon: "slack" },
+      { label: "GitHub", href: `${GUIDE_PATHS.mcp}#mcp-github`, icon: "github" },
+      { label: "OpenMetadata", href: `${GUIDE_PATHS.mcp}#mcp-openmetadata`, icon: "openmetadata" },
+      { label: "Grafana", href: `${GUIDE_PATHS.mcp}#mcp-grafana`, icon: "grafana" },
+      { label: "Dagster", href: `${GUIDE_PATHS.mcp}#mcp-dagster`, icon: "dagster" },
+      { label: "Airflow", href: `${GUIDE_PATHS.mcp}#mcp-airflow`, icon: "airflow" },
+      { label: "dbt", href: `${GUIDE_PATHS.mcp}#mcp-dbt`, icon: "dbt" },
+      { label: "dbt Core", href: `${GUIDE_PATHS.mcp}#mcp-dbt-core`, icon: "dbt" },
+      { label: "认证", href: GUIDE_PATHS.sec, icon: "auth" },
     ],
   },
 };
