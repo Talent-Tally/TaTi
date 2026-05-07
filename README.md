@@ -1,6 +1,6 @@
 # TaTi
 
-TaTi est une plateforme open source de copilote IA orientee delivery/ops, connectee a des services externes via MCP (Model Context Protocol).
+TaTi est une plateforme proprietaire de copilote IA orientee delivery/ops, connectee a des services externes via MCP (Model Context Protocol).
 
 ## Lancer rapidement (self-hosted)
 
@@ -26,4 +26,5 @@ Application:
 
 ## Licence
 
-Voir le fichier de licence du depot.
+Ce projet est proprietaire ("All rights reserved").
+Voir `LICENSE` et `EULA.md`.
