@@ -177,14 +177,14 @@ function formatContent(text: string): string {
       @click="toggle"
     >
       <svg class="docs-ai-sparkles" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-        <!-- Deux étoiles à 4 branches en croix (effet « étincelles ») -->
+        <!-- Etoile en forme de croix -->
         <path
-          class="docs-ai-star docs-ai-star-a"
-          d="M16 4l1.4 5.1L22 11l-5.1 1.4L16 18l-1.4-5.6L9 11l5.6-1.9L16 4z"
+          class="docs-ai-star-cross"
+          d="M16 4c.5 0 .9.4.9.9v7.7h7.7c.5 0 .9.4.9.9s-.4.9-.9.9h-7.7v7.7c0 .5-.4.9-.9.9s-.9-.4-.9-.9v-7.7H7.4c-.5 0-.9-.4-.9-.9s.4-.9.9-.9h7.7V4.9c0-.5.4-.9.9-.9z"
         />
         <path
-          class="docs-ai-star docs-ai-star-b"
-          d="M16 4l1.4 5.1L22 11l-5.1 1.4L16 18l-1.4-5.6L9 11l5.6-1.9L16 4z"
+          class="docs-ai-star-cross-soft"
+          d="M23.6 6.8c.3.3.3.9 0 1.2l-2.5 2.5 2.5 2.5c.3.3.3.9 0 1.2s-.9.3-1.2 0l-2.5-2.5-2.5 2.5c-.3.3-.9.3-1.2 0s-.3-.9 0-1.2l2.5-2.5-2.5-2.5c-.3-.3-.3-.9 0-1.2s.9-.3 1.2 0l2.5 2.5L22.4 6.8c.3-.3.9-.3 1.2 0z"
         />
       </svg>
     </button>
@@ -289,24 +289,22 @@ function formatContent(text: string): string {
 }
 
 .docs-ai-sparkles {
-  width: 1.35rem;
-  height: 1.35rem;
+  width: 1.8rem;
+  height: 1.8rem;
   overflow: visible;
 }
 
-.docs-ai-star {
+.docs-ai-star-cross,
+.docs-ai-star-cross-soft {
   fill: currentColor;
-  transform-origin: 16px 11px;
 }
 
-.docs-ai-star-a {
+.docs-ai-star-cross {
   opacity: 1;
-  transform: rotate(-8deg) scale(0.92);
 }
 
-.docs-ai-star-b {
-  opacity: 0.88;
-  transform: rotate(38deg) scale(0.72);
+.docs-ai-star-cross-soft {
+  opacity: 0.38;
 }
 
 .docs-ai-panel {
