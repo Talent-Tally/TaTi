@@ -1,4 +1,23 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitepress";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+
+function readDocsVersion(): string {
+  try {
+    const pkgPath = path.join(repoRoot, "package.json");
+    const raw = readFileSync(pkgPath, "utf8");
+    const pkg = JSON.parse(raw) as { version?: string };
+    const version = pkg.version?.trim();
+    return version ? `v${version}` : "vdev";
+  } catch {
+    return "vdev";
+  }
+}
+
+const docsVersion = readDocsVersion();
 
 // Déploiement GitHub Pages (projet) : définir VITEPRESS_BASE=/TaTi/ en CI
 const base = process.env.VITEPRESS_BASE ?? "/";
@@ -46,13 +65,9 @@ export default defineConfig({
         search: {
           provider: "local",
         },
-        editLink: {
-          pattern: "https://github.com/Talent-Tally/TaTi/edit/main/docs/:path",
-          text: "Modifier cette page sur GitHub",
-        },
         socialLinks: [{ icon: "github", link: "https://github.com/Talent-Tally/TaTi" }],
         footer: {
-          message: "TaTi — copilote IA delivery/ops • Documentation sous licence du dépôt",
+          message: `TaTi — copilote IA delivery/ops • Version ${docsVersion} • Documentation sous licence du dépôt`,
           copyright: `© ${new Date().getFullYear()} Contributeurs TaTi`,
         },
         nav: [
@@ -106,13 +121,9 @@ export default defineConfig({
         search: {
           provider: "local",
         },
-        editLink: {
-          pattern: "https://github.com/Talent-Tally/TaTi/edit/main/docs/:path",
-          text: "Edit this page on GitHub",
-        },
         socialLinks: [{ icon: "github", link: "https://github.com/Talent-Tally/TaTi" }],
         footer: {
-          message: "TaTi — delivery/ops copilot • Documentation under repository license",
+          message: `TaTi — delivery/ops copilot • Version ${docsVersion} • Documentation under repository license`,
           copyright: `© ${new Date().getFullYear()} TaTi contributors`,
         },
         nav: [
@@ -166,13 +177,9 @@ export default defineConfig({
         search: {
           provider: "local",
         },
-        editLink: {
-          pattern: "https://github.com/Talent-Tally/TaTi/edit/main/docs/:path",
-          text: "在 GitHub 上编辑此页",
-        },
         socialLinks: [{ icon: "github", link: "https://github.com/Talent-Tally/TaTi" }],
         footer: {
-          message: "TaTi — 交付/运维副驾驶 • 文档遵循仓库许可",
+          message: `TaTi — 交付/运维副驾驶 • 版本 ${docsVersion} • 文档遵循仓库许可`,
           copyright: `© ${new Date().getFullYear()} TaTi 贡献者`,
         },
         nav: [
