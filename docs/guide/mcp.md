@@ -6,7 +6,6 @@ TaTi ne « embarque » pas toute la logique des intégrations dans le binaire we
 Les **ports** ci‑dessous sont les **ports hôte par défaut** du fichier `.env.example`. Ils sont modifiables : gardez la cohérence entre `.env`, `docker compose` et l’URL enregistrée dans TaTi (ex. si vous changez `MCP_SLACK_PORT`, l’URL `http://localhost:…/mcp` change aussi).
 :::
 
-
 ## Architecture MCP (vue d'ensemble)
 
 <div style="display:grid;grid-template-columns:minmax(320px,1.2fr) minmax(260px,1fr);gap:1rem;align-items:start;margin:1rem 0;">
