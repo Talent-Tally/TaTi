@@ -1,6 +1,5 @@
 # =============================================================================
 # docker-compose pour faire tourner le projet en self-hosted local.
-#
 # Mode :
 #   - `docker compose up` -> postgres + app + MCP
 #
