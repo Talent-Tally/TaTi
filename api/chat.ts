@@ -21,16 +21,18 @@ function getAllowedOrigins(): string[] {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
+
   return [...new Set([...DEFAULT_ALLOWED_ORIGINS, ...fromEnv])];
 }
 
 function corsHeaders(origin: string | null): HeadersInit {
   const allowed = getAllowedOrigins();
   const allowOrigin = origin && allowed.includes(origin) ? origin : allowed[0];
+
   return {
     "access-control-allow-origin": allowOrigin,
     "access-control-allow-methods": "POST, OPTIONS",
-    "access-control-allow-headers": "content-type",
+    "access-control-allow-headers": "content-type, authorization",
     vary: "origin",
   };
 }
@@ -69,11 +71,40 @@ function buildSystemPrompt(locale?: string, pagePath?: string): string {
 
 export const config = { runtime: "edge" };
 
+type AnthropicStreamEvent = {
+  type?: string;
+  delta?: {
+    type?: string;
+    text?: string;
+  };
+  error?: {
+    message?: string;
+  };
+};
+
+function parseSseEvents(chunk: string): string[] {
+  return chunk
+    .split("\n\n")
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function extractDataLines(eventBlock: string): string[] {
+  return eventBlock
+    .split("\n")
+    .filter((line) => line.startsWith("data:"))
+    .map((line) => line.slice(5).trim())
+    .filter(Boolean);
+}
+
 export default async function handler(req: Request): Promise<Response> {
   const origin = req.headers.get("origin");
 
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders(origin) });
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders(origin),
+    });
   }
 
   if (req.method !== "POST") {
@@ -94,7 +125,10 @@ export default async function handler(req: Request): Promise<Response> {
 
   const messages = (body.messages ?? [])
     .filter((m): m is ChatMsg => !!m && (m.role === "user" || m.role === "assistant"))
-    .map((m) => ({ role: m.role, content: m.content?.trim() ?? "" }))
+    .map((m) => ({
+      role: m.role,
+      content: m.content?.trim() ?? "",
+    }))
     .filter((m) => m.content.length > 0)
     .slice(-24);
 
@@ -137,35 +171,68 @@ export default async function handler(req: Request): Promise<Response> {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const reader = upstream.body!.getReader();
-      let raw = "";
+      let buffer = "";
 
       try {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          raw += decoder.decode(value, { stream: true });
-          const lines = raw.split("\n");
-          raw = lines.pop() ?? "";
+          buffer += decoder.decode(value, { stream: true });
 
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const payload = line.slice(6).trim();
+          const eventBlocks = parseSseEvents(buffer);
+
+          if (!buffer.endsWith("\n\n")) {
+            buffer = eventBlocks.pop() ?? "";
+          } else {
+            buffer = "";
+          }
+
+          for (const block of eventBlocks) {
+            const dataLines = extractDataLines(block);
+
+            for (const payload of dataLines) {
+              if (!payload || payload === "[DONE]") continue;
+
+              try {
+                const evt = JSON.parse(payload) as AnthropicStreamEvent;
+
+                if (
+                  evt.type === "content_block_delta" &&
+                  evt.delta?.type === "text_delta" &&
+                  evt.delta.text
+                ) {
+                  controller.enqueue(
+                    encoder.encode(sse({ type: "token", content: evt.delta.text })),
+                  );
+                } else if (evt.type === "error" && evt.error?.message) {
+                  controller.enqueue(
+                    encoder.encode(sse({ type: "error", message: evt.error.message })),
+                  );
+                }
+              } catch {
+                continue;
+              }
+            }
+          }
+        }
+
+        if (buffer.trim()) {
+          const dataLines = extractDataLines(buffer);
+          for (const payload of dataLines) {
             if (!payload || payload === "[DONE]") continue;
 
             try {
-              const evt = JSON.parse(payload) as {
-                type?: string;
-                delta?: { type?: string; text?: string };
-                error?: { message?: string };
-              };
+              const evt = JSON.parse(payload) as AnthropicStreamEvent;
 
               if (
                 evt.type === "content_block_delta" &&
                 evt.delta?.type === "text_delta" &&
                 evt.delta.text
               ) {
-                controller.enqueue(encoder.encode(sse({ type: "token", content: evt.delta.text })));
+                controller.enqueue(
+                  encoder.encode(sse({ type: "token", content: evt.delta.text })),
+                );
               } else if (evt.type === "error" && evt.error?.message) {
                 controller.enqueue(
                   encoder.encode(sse({ type: "error", message: evt.error.message })),
@@ -187,6 +254,7 @@ export default async function handler(req: Request): Promise<Response> {
   });
 
   return new Response(stream, {
+    status: 200,
     headers: {
       ...corsHeaders(origin),
       "content-type": "text/event-stream; charset=utf-8",
