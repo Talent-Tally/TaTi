@@ -230,9 +230,7 @@ export default async function handler(req: Request): Promise<Response> {
                 evt.delta?.type === "text_delta" &&
                 evt.delta.text
               ) {
-                controller.enqueue(
-                  encoder.encode(sse({ type: "token", content: evt.delta.text })),
-                );
+                controller.enqueue(encoder.encode(sse({ type: "token", content: evt.delta.text })));
               } else if (evt.type === "error" && evt.error?.message) {
                 controller.enqueue(
                   encoder.encode(sse({ type: "error", message: evt.error.message })),
