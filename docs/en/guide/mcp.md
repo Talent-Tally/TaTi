@@ -6,7 +6,6 @@ TaTi does not embed all integration logic in the web binary: each domain (Slack,
 The **ports** below are **default host ports** from `.env.example`. You can change them: keep `.env`, `docker compose`, and the URL saved in TaTi consistent (e.g. if you change `MCP_SLACK_PORT`, `http://localhost:…/mcp` changes too).
 :::
 
-
 ## MCP architecture (overview)
 
 <div style="margin:1rem 0;">
@@ -62,7 +61,7 @@ The **ports** below are **default host ports** from `.env.example`. You can chan
 | Slack                   | 8006                 | `http://mcp-slack:8006/mcp`         | `MCP_SLACK_*`                                                            |
 | Grafana                 | 8020                 | `http://mcp-grafana:8020/mcp`       | `MCP_GRAFANA_*`                                                          |
 | Prometheus              | 8021                 | `http://mcp-prometheus:8021/mcp`    | `MCP_PROMETHEUS_*`                                                       |
-| n8n Builder MCP         | 8022                 | `http://mcp-n8n:3000/mcp`           | `MCP_N8N_API_URL`, `MCP_N8N_API_KEY`, `MCP_N8N_AUTH_TOKEN`              |
+| n8n Builder MCP         | 8022                 | `http://mcp-n8n:3000/mcp`           | `MCP_N8N_API_URL`, `MCP_N8N_API_KEY`, `MCP_N8N_AUTH_TOKEN`               |
 | Datadog                 | — (HTTPS)            | See Datadog section                 | `MCP_DATADOG_*` + headers                                                |
 | Google Gmail / Calendar | — (HTTPS)            | Google MCP endpoints                | `GOOGLE_*`, OAuth                                                        |
 | Moodle                  | — (HTTPS)            | Moodle plugin URL                   | `MCP_MOODLE_*`                                                           |
