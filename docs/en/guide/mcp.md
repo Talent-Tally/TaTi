@@ -62,6 +62,7 @@ The **ports** below are **default host ports** from `.env.example`. You can chan
 | Slack                   | 8006                 | `http://mcp-slack:8006/mcp`         | `MCP_SLACK_*`                                                            |
 | Grafana                 | 8020                 | `http://mcp-grafana:8020/mcp`       | `MCP_GRAFANA_*`                                                          |
 | Prometheus              | 8021                 | `http://mcp-prometheus:8021/mcp`    | `MCP_PROMETHEUS_*`                                                       |
+| n8n Builder MCP         | 8022                 | `http://mcp-n8n:3000/mcp`           | `MCP_N8N_API_URL`, `MCP_N8N_API_KEY`, `MCP_N8N_AUTH_TOKEN`              |
 | Datadog                 | — (HTTPS)            | See Datadog section                 | `MCP_DATADOG_*` + headers                                                |
 | Google Gmail / Calendar | — (HTTPS)            | Google MCP endpoints                | `GOOGLE_*`, OAuth                                                        |
 | Moodle                  | — (HTTPS)            | Moodle plugin URL                   | `MCP_MOODLE_*`                                                           |
@@ -268,6 +269,104 @@ Even read-only `SELECT` can load the DB — isolate networks and define SQL poli
 **Role**: **Hosted Datadog MCP** (not a default Compose container) — APM, logs, metrics per product.
 
 **Setup**: `MCP_DATADOG_MCP_URL` (US/EU). Keys often passed as **headers** in TaTi (`DD_API_KEY`, `DD_APPLICATION_KEY`).
+
+---
+
+## MCP n8n (Builder + Instance) {#mcp-n8n}
+
+**Goal**: let TaTi **create, edit, list, and run** n8n workflows from chat.
+
+### Choose the right mode
+
+- **n8n Builder MCP (recommended for build/edit)**:
+  - Local Docker service `mcp-n8n` (`ghcr.io/talent-tally/tati-mcp-n8n:latest`).
+  - TaTi URL: `http://mcp-n8n:3000/mcp`.
+  - Exposes workflow CRUD/build tools when `N8N_MODE=true` and API access is valid.
+- **n8n Instance MCP (native n8n endpoint)**:
+  - Direct n8n endpoint: `https://<your-domain>/mcp-server/http`.
+  - Auth with n8n MCP token (`Authorization: Bearer <token>`).
+  - Good for native instance-level access; depending on n8n version/config, tool coverage may be more run/ops-oriented.
+
+### n8n-side prerequisites
+
+1. Enable **Instance-level MCP** in n8n: `Settings -> Instance-level MCP`.
+2. Enable target workflows as **Available in MCP**.
+3. Generate the required secrets:
+   - **n8n API Key** (for Builder MCP through n8n API).
+   - **MCP Access Token** (for native Instance MCP).
+
+### `.env` variables (local Builder MCP)
+
+```bash
+MCP_N8N_API_URL=https://your-subdomain.app.n8n.cloud
+MCP_N8N_API_KEY=...
+MCP_N8N_AUTH_TOKEN=change-me-n8n-mcp-token
+MCP_N8N_WEBHOOK_SECURITY_MODE=strict
+MCP_N8N_PORT=8022
+MCP_N8N_IMAGE=ghcr.io/talent-tally/tati-mcp-n8n:latest
+```
+
+**Important**
+
+- `MCP_N8N_API_URL` must be the base instance URL (for example `https://xxx.app.n8n.cloud`), **without** `/api/v1`.
+- Keep token/key values literal in `.env` (special characters are supported).
+
+### Start command (exact)
+
+From repo root:
+
+```bash
+docker compose up -d mcp-n8n app
+```
+
+Then verify:
+
+```bash
+docker compose logs --tail=100 mcp-n8n
+curl -s http://localhost:8022/health
+```
+
+Expected:
+
+- logs showing `n8n MCP ... running on 0.0.0.0:3000`
+- health endpoint returns OK.
+
+### TaTi UI setup
+
+In **Settings -> MCP servers**:
+
+- preset **n8n (Builder MCP)**:
+  - URL: `http://mcp-n8n:3000/mcp`
+  - Headers JSON:
+    ```json
+    {
+      "Authorization": "Bearer <MCP_N8N_AUTH_TOKEN>"
+    }
+    ```
+- optional preset **n8n (Instance MCP)**:
+  - URL: `https://<your-subdomain>.app.n8n.cloud/mcp-server/http`
+  - Header `Authorization: Bearer <YOUR_N8N_MCP_TOKEN>`
+
+### Recommended end-to-end smoke test
+
+1. In TaTi, enable only **n8n Builder**.
+2. Send short prompts:
+   - `List my n8n workflows`
+   - then `Create a simple workflow with a trigger and email send`
+3. Confirm workflow creation/changes in n8n UI.
+
+### Common failures and fixes
+
+- **Missing tools (`n8n_create_workflow`, `n8n_list_workflows`)**
+  - check `N8N_MODE=true` on `mcp-n8n`
+  - check `MCP_N8N_API_URL` does not include `/api/v1`
+  - verify `MCP_N8N_API_KEY` validity.
+- **“Cannot test via API - Manual Trigger...”**
+  - expected behavior: `Manual Trigger` does not support external API test; use webhook/schedule/chat trigger for API-driven testing.
+- **Port conflict concerns**
+  - host uses `8022`; `3000` is internal container port.
+- **Agent gives incomplete answers**
+  - verify TaTi is using the intended MCP server (Builder vs Instance), then retry with shorter prompts.
 
 ---
 
