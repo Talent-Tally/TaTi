@@ -39,6 +39,7 @@ const BRAND_BY_ANCHOR: Record<string, string> = {
   "mcp-grafana": "grafana.svg",
   "mcp-prometheus": "prometheus.svg",
   "mcp-datadog": "datadog.svg",
+  "mcp-n8n": "n8n.svg",
   "mcp-google": "google.svg",
   "mcp-moodle": "moodle.svg",
 };
@@ -202,6 +203,13 @@ const services: Svc[] = [
     anchor: "mcp-datadog",
     hint: "Endpoint MCP distant",
     detail: "APM, logs, métriques ; clés en headers.",
+  },
+  {
+    cat: "forge",
+    name: "n8n",
+    anchor: "mcp-n8n",
+    hint: "Builder & Instance MCP",
+    detail: "Création/édition/exécution de workflows via API n8n ou endpoint MCP natif.",
   },
   {
     cat: "google",
