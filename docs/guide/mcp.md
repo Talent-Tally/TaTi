@@ -60,7 +60,7 @@ Les **ports** ci‑dessous sont les **ports hôte par défaut** du fichier `.env
 | Slack                 | 8006                | `http://mcp-slack:8006/mcp`         | `MCP_SLACK_*`                                                            |
 | Grafana               | 8020                | `http://mcp-grafana:8020/mcp`       | `MCP_GRAFANA_*`                                                          |
 | Prometheus            | 8021                | `http://mcp-prometheus:8021/mcp`    | `MCP_PROMETHEUS_*`                                                       |
-| n8n Builder MCP       | 8022                | `http://mcp-n8n:3000/mcp`           | `MCP_N8N_API_URL`, `MCP_N8N_API_KEY`, `MCP_N8N_AUTH_TOKEN`              |
+| n8n Builder MCP       | 8022                | `http://mcp-n8n:3000/mcp`           | `MCP_N8N_API_URL`, `MCP_N8N_API_KEY`, `MCP_N8N_AUTH_TOKEN`               |
 | Datadog               | — (HTTPS)           | Voir section Datadog                | `MCP_DATADOG_*` + headers                                                |
 | Google Gmail / Agenda | — (HTTPS)           | Endpoints Google MCP                | `GOOGLE_*`, OAuth                                                        |
 | Moodle                | — (HTTPS)           | URL du plugin Moodle                | `MCP_MOODLE_*`                                                           |
