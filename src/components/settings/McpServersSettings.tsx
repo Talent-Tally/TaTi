@@ -64,191 +64,217 @@ interface McpServer {
   enabled: boolean;
 }
 
-const PRESETS: Array<{ label: string; name: string; url: string; hint: string; icon: ReactNode }> =
-  [
-    {
-      label: "PostgreSQL",
-      name: "PostgreSQL",
-      url: "http://mcp-postgres:8002/mcp",
-      hint: "Service docker local mcp-postgres",
-      icon: <Database className="h-3.5 w-3.5 text-sky-700" />,
+const PRESETS: Array<{
+  label: string;
+  name: string;
+  url: string;
+  hint: string;
+  icon: ReactNode;
+  headersTemplate?: Record<string, string>;
+}> = [
+  {
+    label: "PostgreSQL",
+    name: "PostgreSQL",
+    url: "http://mcp-postgres:8002/mcp",
+    hint: "Service docker local mcp-postgres",
+    icon: <Database className="h-3.5 w-3.5 text-sky-700" />,
+  },
+  {
+    label: "PDF",
+    name: "PDF Generator",
+    url: "http://mcp-pdf:8003/mcp",
+    hint: "Génération de PDF (service docker local)",
+    icon: <FileText className="h-3.5 w-3.5 text-red-600" />,
+  },
+  {
+    label: "Notion",
+    name: "Notion",
+    url: "http://mcp-notion:8004/mcp",
+    hint: "Service officiel Notion MCP",
+    icon: <Notebook className="h-3.5 w-3.5" />,
+  },
+  {
+    label: "Slack",
+    name: "Slack",
+    url: "http://mcp-slack:8006/mcp",
+    hint: "Bridge Slack MCP local (messages + channels)",
+    icon: <MessageSquare className="h-3.5 w-3.5 text-fuchsia-600" />,
+  },
+  {
+    label: "Discord",
+    name: "Discord",
+    url: "http://mcp-discord:8010/mcp",
+    hint: "Bridge Discord MCP local (messages + channels)",
+    icon: <Gamepad2 className="h-3.5 w-3.5 text-indigo-600" />,
+  },
+  {
+    label: "Filesystem",
+    name: "Filesystem",
+    url: "http://mcp-filesystem:8011/mcp",
+    hint: "Bridge fichiers local (liste/lit/ecrit sous FILESYSTEM_ROOT)",
+    icon: <Folder className="h-3.5 w-3.5 text-amber-600" />,
+  },
+  {
+    label: "AWS",
+    name: "AWS",
+    url: "http://mcp-aws:8012/mcp",
+    hint: "Bridge AWS ops (EC2, Lambda, ECS/EKS, S3, DynamoDB, CloudWatch, CloudTrail, IAM, Secrets)",
+    icon: <Cloud className="h-3.5 w-3.5 text-orange-500" />,
+  },
+  {
+    label: "Azure",
+    name: "Azure",
+    url: "http://mcp-azure:8013/mcp",
+    hint: "Bridge Azure ops (VM, RG, NSG, App Service, Storage, Key Vault, Activity Log)",
+    icon: <Cloud className="h-3.5 w-3.5 text-blue-600" />,
+  },
+  {
+    label: "GCP",
+    name: "GCP",
+    url: "http://mcp-gcp:8014/mcp",
+    hint: "Bridge GCP ops (Projects, Compute, GKE, GCS, Logging)",
+    icon: <Cloud className="h-3.5 w-3.5 text-sky-500" />,
+  },
+  {
+    label: "Email (SMTP)",
+    name: "Email",
+    url: "http://mcp-email:8015/mcp",
+    hint: "Bridge Email SMTP (envoi de rapports)",
+    icon: <Mail className="h-3.5 w-3.5 text-purple-600" />,
+  },
+  {
+    label: "Gmail (Google MCP)",
+    name: "Gmail",
+    url: "https://gmailmcp.googleapis.com/mcp/v1",
+    hint: "Serveur MCP distant officiel Google Workspace (OAuth requis)",
+    icon: <Mail className="h-3.5 w-3.5 text-red-500" />,
+  },
+  {
+    label: "Google Calendar MCP",
+    name: "Google Calendar",
+    url: "https://calendarmcp.googleapis.com/mcp/v1",
+    hint: "Serveur MCP distant officiel Google Calendar (OAuth requis)",
+    icon: <CalendarDays className="h-3.5 w-3.5 text-blue-600" />,
+  },
+  {
+    label: "GitHub",
+    name: "GitHub",
+    url: "http://mcp-github:8007/mcp",
+    hint: "Bridge local GitHub MCP (issues + PR)",
+    icon: <GitBranch className="h-3.5 w-3.5" />,
+  },
+  {
+    label: "GitLab",
+    name: "GitLab",
+    url: "http://mcp-gitlab:8008/mcp",
+    hint: "Bridge local GitLab MCP (projects + issues + MR)",
+    icon: <GitBranch className="h-3.5 w-3.5 text-orange-500" />,
+  },
+  {
+    label: "Elasticsearch",
+    name: "Elasticsearch",
+    url: "http://mcp-elasticsearch:8080/mcp",
+    hint: "MCP Elasticsearch (indices, mappings, search, ES|QL)",
+    icon: <Search className="h-3.5 w-3.5 text-teal-600" />,
+  },
+  {
+    label: "Grafana",
+    name: "Grafana",
+    url: "http://mcp-grafana:8020/mcp",
+    hint: "Serveur MCP Grafana officiel (dashboards, alerts, logs, metrics)",
+    icon: <BarChart3 className="h-3.5 w-3.5 text-orange-600" />,
+  },
+  {
+    label: "Prometheus",
+    name: "Prometheus",
+    url: "http://mcp-prometheus:8021/mcp",
+    hint: "Bridge Prometheus MCP (PromQL, metadata, targets)",
+    icon: <Activity className="h-3.5 w-3.5 text-red-600" />,
+  },
+  {
+    label: "Datadog",
+    name: "Datadog",
+    url: "https://mcp.datadoghq.com/api/unstable/mcp-server/mcp",
+    hint: "Serveur MCP Datadog officiel (ajoute DD_API_KEY + DD_APPLICATION_KEY dans Headers JSON)",
+    icon: <LineChart className="h-3.5 w-3.5 text-violet-600" />,
+  },
+  {
+    label: "MySQL",
+    name: "MySQL",
+    url: "https://YOUR-TUNNEL/mysql/mcp",
+    hint: "Sert via mcp-server-mysql",
+    icon: <HardDrive className="h-3.5 w-3.5 text-blue-700" />,
+  },
+  {
+    label: "Dagster",
+    name: "Dagster",
+    url: "http://mcp-dagster:8016/mcp",
+    hint: "Bridge local Dagster MCP (GraphQL runs/jobs)",
+    icon: <Workflow className="h-3.5 w-3.5 text-violet-700" />,
+  },
+  {
+    label: "Apache Airflow",
+    name: "Airflow",
+    url: "http://mcp-airflow:8017/mcp",
+    hint: "Bridge local Airflow MCP (REST /api/v1 DAGs, runs, trigger)",
+    icon: <Workflow className="h-3.5 w-3.5 text-sky-600" />,
+  },
+  {
+    label: "dbt Cloud",
+    name: "dbt",
+    url: "http://mcp-dbt:8018/mcp",
+    hint: "Bridge dbt Cloud Discovery API (GraphQL metadata, models/sources)",
+    icon: <Boxes className="h-3.5 w-3.5 text-orange-500" />,
+  },
+  {
+    label: "dbt Core",
+    name: "dbt Core",
+    url: "http://mcp-dbt-core:8019/mcp",
+    hint: "Bridge dbt Core CLI (mounted project: parse, ls, compile, manifest)",
+    icon: <Boxes className="h-3.5 w-3.5 text-amber-600" />,
+  },
+  {
+    label: "Moodle",
+    name: "Moodle",
+    url: "https://YOUR-MOODLE-SITE/webservice/mcp/server.php",
+    hint: "Plugin Moodle MCP natif (ajoute Authorization: Bearer <token> dans Headers JSON)",
+    icon: <GraduationCap className="h-3.5 w-3.5 text-orange-600" />,
+  },
+  {
+    label: "n8n (Builder MCP)",
+    name: "n8n Builder",
+    url: "http://mcp-n8n:3000/mcp",
+    hint: "czlonkowski/n8n-mcp (creation + edition via API n8n)",
+    icon: <Workflow className="h-3.5 w-3.5 text-emerald-700" />,
+    headersTemplate: {
+      Authorization: "Bearer change-me-n8n-mcp-token",
     },
-    {
-      label: "PDF",
-      name: "PDF Generator",
-      url: "http://mcp-pdf:8003/mcp",
-      hint: "Génération de PDF (service docker local)",
-      icon: <FileText className="h-3.5 w-3.5 text-red-600" />,
+  },
+  {
+    label: "n8n (Instance MCP)",
+    name: "n8n Instance MCP",
+    url: "https://YOUR-SUBDOMAIN.app.n8n.cloud/mcp-server/http",
+    hint: "MCP natif n8n (souvent limite au run/ops selon outils exposes)",
+    icon: <Workflow className="h-3.5 w-3.5 text-emerald-600" />,
+    headersTemplate: {
+      Authorization: "Bearer YOUR_N8N_MCP_TOKEN",
     },
-    {
-      label: "Notion",
-      name: "Notion",
-      url: "http://mcp-notion:8004/mcp",
-      hint: "Service officiel Notion MCP",
-      icon: <Notebook className="h-3.5 w-3.5" />,
-    },
-    {
-      label: "Slack",
-      name: "Slack",
-      url: "http://mcp-slack:8006/mcp",
-      hint: "Bridge Slack MCP local (messages + channels)",
-      icon: <MessageSquare className="h-3.5 w-3.5 text-fuchsia-600" />,
-    },
-    {
-      label: "Discord",
-      name: "Discord",
-      url: "http://mcp-discord:8010/mcp",
-      hint: "Bridge Discord MCP local (messages + channels)",
-      icon: <Gamepad2 className="h-3.5 w-3.5 text-indigo-600" />,
-    },
-    {
-      label: "Filesystem",
-      name: "Filesystem",
-      url: "http://mcp-filesystem:8011/mcp",
-      hint: "Bridge fichiers local (liste/lit/ecrit sous FILESYSTEM_ROOT)",
-      icon: <Folder className="h-3.5 w-3.5 text-amber-600" />,
-    },
-    {
-      label: "AWS",
-      name: "AWS",
-      url: "http://mcp-aws:8012/mcp",
-      hint: "Bridge AWS ops (EC2, Lambda, ECS/EKS, S3, DynamoDB, CloudWatch, CloudTrail, IAM, Secrets)",
-      icon: <Cloud className="h-3.5 w-3.5 text-orange-500" />,
-    },
-    {
-      label: "Azure",
-      name: "Azure",
-      url: "http://mcp-azure:8013/mcp",
-      hint: "Bridge Azure ops (VM, RG, NSG, App Service, Storage, Key Vault, Activity Log)",
-      icon: <Cloud className="h-3.5 w-3.5 text-blue-600" />,
-    },
-    {
-      label: "GCP",
-      name: "GCP",
-      url: "http://mcp-gcp:8014/mcp",
-      hint: "Bridge GCP ops (Projects, Compute, GKE, GCS, Logging)",
-      icon: <Cloud className="h-3.5 w-3.5 text-sky-500" />,
-    },
-    {
-      label: "Email (SMTP)",
-      name: "Email",
-      url: "http://mcp-email:8015/mcp",
-      hint: "Bridge Email SMTP (envoi de rapports)",
-      icon: <Mail className="h-3.5 w-3.5 text-purple-600" />,
-    },
-    {
-      label: "Gmail (Google MCP)",
-      name: "Gmail",
-      url: "https://gmailmcp.googleapis.com/mcp/v1",
-      hint: "Serveur MCP distant officiel Google Workspace (OAuth requis)",
-      icon: <Mail className="h-3.5 w-3.5 text-red-500" />,
-    },
-    {
-      label: "Google Calendar MCP",
-      name: "Google Calendar",
-      url: "https://calendarmcp.googleapis.com/mcp/v1",
-      hint: "Serveur MCP distant officiel Google Calendar (OAuth requis)",
-      icon: <CalendarDays className="h-3.5 w-3.5 text-blue-600" />,
-    },
-    {
-      label: "GitHub",
-      name: "GitHub",
-      url: "http://mcp-github:8007/mcp",
-      hint: "Bridge local GitHub MCP (issues + PR)",
-      icon: <GitBranch className="h-3.5 w-3.5" />,
-    },
-    {
-      label: "GitLab",
-      name: "GitLab",
-      url: "http://mcp-gitlab:8008/mcp",
-      hint: "Bridge local GitLab MCP (projects + issues + MR)",
-      icon: <GitBranch className="h-3.5 w-3.5 text-orange-500" />,
-    },
-    {
-      label: "Elasticsearch",
-      name: "Elasticsearch",
-      url: "http://mcp-elasticsearch:8080/mcp",
-      hint: "MCP Elasticsearch (indices, mappings, search, ES|QL)",
-      icon: <Search className="h-3.5 w-3.5 text-teal-600" />,
-    },
-    {
-      label: "Grafana",
-      name: "Grafana",
-      url: "http://mcp-grafana:8020/mcp",
-      hint: "Serveur MCP Grafana officiel (dashboards, alerts, logs, metrics)",
-      icon: <BarChart3 className="h-3.5 w-3.5 text-orange-600" />,
-    },
-    {
-      label: "Prometheus",
-      name: "Prometheus",
-      url: "http://mcp-prometheus:8021/mcp",
-      hint: "Bridge Prometheus MCP (PromQL, metadata, targets)",
-      icon: <Activity className="h-3.5 w-3.5 text-red-600" />,
-    },
-    {
-      label: "Datadog",
-      name: "Datadog",
-      url: "https://mcp.datadoghq.com/api/unstable/mcp-server/mcp",
-      hint: "Serveur MCP Datadog officiel (ajoute DD_API_KEY + DD_APPLICATION_KEY dans Headers JSON)",
-      icon: <LineChart className="h-3.5 w-3.5 text-violet-600" />,
-    },
-    {
-      label: "MySQL",
-      name: "MySQL",
-      url: "https://YOUR-TUNNEL/mysql/mcp",
-      hint: "Sert via mcp-server-mysql",
-      icon: <HardDrive className="h-3.5 w-3.5 text-blue-700" />,
-    },
-    {
-      label: "Dagster",
-      name: "Dagster",
-      url: "http://mcp-dagster:8016/mcp",
-      hint: "Bridge local Dagster MCP (GraphQL runs/jobs)",
-      icon: <Workflow className="h-3.5 w-3.5 text-violet-700" />,
-    },
-    {
-      label: "Apache Airflow",
-      name: "Airflow",
-      url: "http://mcp-airflow:8017/mcp",
-      hint: "Bridge local Airflow MCP (REST /api/v1 DAGs, runs, trigger)",
-      icon: <Workflow className="h-3.5 w-3.5 text-sky-600" />,
-    },
-    {
-      label: "dbt Cloud",
-      name: "dbt",
-      url: "http://mcp-dbt:8018/mcp",
-      hint: "Bridge dbt Cloud Discovery API (GraphQL metadata, models/sources)",
-      icon: <Boxes className="h-3.5 w-3.5 text-orange-500" />,
-    },
-    {
-      label: "dbt Core",
-      name: "dbt Core",
-      url: "http://mcp-dbt-core:8019/mcp",
-      hint: "Bridge dbt Core CLI (mounted project: parse, ls, compile, manifest)",
-      icon: <Boxes className="h-3.5 w-3.5 text-amber-600" />,
-    },
-    {
-      label: "Moodle",
-      name: "Moodle",
-      url: "https://YOUR-MOODLE-SITE/webservice/mcp/server.php",
-      hint: "Plugin Moodle MCP natif (ajoute Authorization: Bearer <token> dans Headers JSON)",
-      icon: <GraduationCap className="h-3.5 w-3.5 text-orange-600" />,
-    },
-    {
-      label: "OpenMetadata",
-      name: "OpenMetadata",
-      url: "https://YOUR-OM-INSTANCE/mcp",
-      hint: "Serveur MCP intégré à OpenMetadata",
-      icon: <Tags className="h-3.5 w-3.5 text-cyan-700" />,
-    },
-    {
-      label: "Fetch (universel)",
-      name: "Fetch",
-      url: "https://YOUR-TUNNEL/fetch/mcp",
-      hint: "Pour APIs sans serveur MCP dédié (ex. Hyperplanning)",
-      icon: <Globe className="h-3.5 w-3.5 text-green-700" />,
-    },
-  ];
+  },
+  {
+    label: "OpenMetadata",
+    name: "OpenMetadata",
+    url: "https://YOUR-OM-INSTANCE/mcp",
+    hint: "Serveur MCP intégré à OpenMetadata",
+    icon: <Tags className="h-3.5 w-3.5 text-cyan-700" />,
+  },
+  {
+    label: "Fetch (universel)",
+    name: "Fetch",
+    url: "https://YOUR-TUNNEL/fetch/mcp",
+    hint: "Pour APIs sans serveur MCP dédié (ex. Hyperplanning)",
+    icon: <Globe className="h-3.5 w-3.5 text-green-700" />,
+  },
+];
 
 function getServerIcon(name: string): ReactNode {
   const key = name.trim().toLowerCase();
@@ -276,6 +302,7 @@ function getServerIcon(name: string): ReactNode {
   if (key.includes("gmail")) return <Mail className="h-3.5 w-3.5 text-red-500" />;
   if (key.includes("calendar")) return <CalendarDays className="h-3.5 w-3.5 text-blue-600" />;
   if (key.includes("moodle")) return <GraduationCap className="h-3.5 w-3.5 text-orange-600" />;
+  if (key.includes("n8n")) return <Workflow className="h-3.5 w-3.5 text-emerald-600" />;
   if (key.includes("openmetadata")) return <Tags className="h-3.5 w-3.5 text-cyan-700" />;
   if (key.includes("airflow")) return <Workflow className="h-3.5 w-3.5 text-sky-600" />;
   if (key.includes("dbt core")) return <Boxes className="h-3.5 w-3.5 text-amber-600" />;
@@ -516,6 +543,7 @@ function AddServerDialog({ onCreated }: { onCreated: () => void }) {
   const applyPreset = (p: (typeof PRESETS)[number]) => {
     setName(p.name);
     setUrl(p.url);
+    setHeadersText(p.headersTemplate ? JSON.stringify(p.headersTemplate, null, 2) : "");
     setTestResult(null);
   };
 

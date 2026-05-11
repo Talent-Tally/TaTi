@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  MessageSquare,
   Pencil,
   Plus,
   Settings,
@@ -23,7 +22,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import tatiLogo from "@/assets/tati-logo.png";
 import { useAuth } from "@/hooks/use-auth";
@@ -48,6 +54,8 @@ export function ChatSidebar({
   const [convs, setConvs] = useState<Conv[]>([]);
   const [serverCount, setServerCount] = useState(0);
   const [pendingDelete, setPendingDelete] = useState<Conv | null>(null);
+  const [pendingRename, setPendingRename] = useState<Conv | null>(null);
+  const [renameValue, setRenameValue] = useState("");
   const navigate = useNavigate();
   const auth = useAuth();
 
@@ -115,11 +123,19 @@ export function ChatSidebar({
   const renameConv = async (c: Conv, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const nextTitle = prompt("Nouveau nom de la conversation :", c.title);
-    if (nextTitle === null) return;
-    const title = nextTitle.trim();
-    if (!title || title === c.title) return;
-    await supabase.from("conversations").update({ title }).eq("id", c.id);
+    setPendingRename(c);
+    setRenameValue(c.title);
+  };
+
+  const confirmRename = async () => {
+    if (!pendingRename) return;
+    const title = renameValue.trim();
+    if (!title || title === pendingRename.title) {
+      setPendingRename(null);
+      return;
+    }
+    await supabase.from("conversations").update({ title }).eq("id", pendingRename.id);
+    setPendingRename(null);
   };
 
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
@@ -176,7 +192,6 @@ export function ChatSidebar({
                   <PanelLeftClose className="h-4 w-4" />
                 </button>
               )}
-              <ThemeToggle />
             </div>
           )}
         </div>
@@ -216,7 +231,6 @@ export function ChatSidebar({
             )}
             title={collapsed ? c.title : undefined}
           >
-            <MessageSquare className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             {!collapsed && <span className="truncate flex-1">{c.title}</span>}
             {!collapsed && (
               <button
@@ -341,6 +355,35 @@ export function ChatSidebar({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog
+        open={Boolean(pendingRename)}
+        onOpenChange={(open) => !open && setPendingRename(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Renommer la conversation</DialogTitle>
+          </DialogHeader>
+          <Input
+            value={renameValue}
+            onChange={(e) => setRenameValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") void confirmRename();
+            }}
+            autoFocus
+            maxLength={120}
+            placeholder="Nouveau nom"
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPendingRename(null)}>
+              Annuler
+            </Button>
+            <Button onClick={() => void confirmRename()} disabled={!renameValue.trim()}>
+              Enregistrer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </aside>
   );
 }

@@ -333,13 +333,12 @@ export function ChatView({ conversationId }: { conversationId: string }) {
           {streaming ? (
             <Button
               type="button"
-              variant="destructive"
               onClick={stopStreaming}
-              className="h-12 shrink-0 gap-2 px-4"
+              size="icon"
+              className="h-12 w-12 shrink-0"
               aria-label="Arrêter la génération"
             >
-              <Square className="h-3.5 w-3.5 fill-current" />
-              Arrêter
+              <Square className="h-4 w-4" />
             </Button>
           ) : (
             <Button
