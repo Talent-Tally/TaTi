@@ -298,5 +298,21 @@ services:
     ports:
       - "${MCP_PROMETHEUS_PORT:-8021}:8021"
 
+  mcp-n8n:
+    image: ${MCP_N8N_IMAGE:-ghcr.io/talent-tally/tati-mcp-n8n:latest}
+    container_name: mcp-n8n
+    restart: unless-stopped
+    environment:
+      N8N_MODE: "true"
+      MCP_MODE: http
+      HOST: 0.0.0.0
+      PORT: 3000
+      AUTH_TOKEN: ${MCP_N8N_AUTH_TOKEN:-change-me-n8n-mcp-token}
+      N8N_API_URL: ${MCP_N8N_API_URL:-}
+      N8N_API_KEY: ${MCP_N8N_API_KEY:-}
+      WEBHOOK_SECURITY_MODE: ${MCP_N8N_WEBHOOK_SECURITY_MODE:-strict}
+    ports:
+      - "${MCP_N8N_PORT:-8022}:3000"
+
 volumes:
   postgres_data:
