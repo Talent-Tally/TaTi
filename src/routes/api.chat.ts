@@ -25,9 +25,88 @@ type SseEvent =
   | { type: "error"; message: string }
   | { type: "done" };
 
+/** Tri des outils MCP pour Anthropic : garder les actions n8n (API) avant la doc des nœuds. */
+function anthropicMcpToolSortKey(encodedName: string): [number, string] {
+  const dec = decodeToolName(encodedName);
+  const base = dec?.toolName ?? encodedName;
+  if (base.startsWith("n8n_")) {
+    if (
+      /^n8n_(create|get|list|delete|update|test|validate|generate|deploy|autofix|executions|health_check|workflow_versions|manage_|audit)_/.test(
+        base,
+      )
+    ) {
+      return [0, base];
+    }
+    return [1, base];
+  }
+  return [2, base];
+}
+
+/**
+ * Réduit un JSON Schema pour limiter les tokens tout en gardant des propriétés exploitables
+ * par Claude (évite le bug où tous les `parameters` étaient vides).
+ */
+function slimToolParameters(params: Record<string, unknown> | undefined): Record<string, unknown> {
+  if (!params || typeof params !== "object" || Array.isArray(params)) {
+    return { type: "object", properties: {} };
+  }
+  try {
+    const raw = JSON.stringify(params);
+    if (raw.length <= 8000) return params;
+  } catch {
+    return { type: "object", properties: {} };
+  }
+  return slimSchemaNode(params, 0, 7) as Record<string, unknown>;
+}
+
+function slimSchemaNode(node: unknown, depth: number, maxDepth: number): unknown {
+  if (depth > maxDepth) return { type: "object" };
+  if (node === null || typeof node !== "object") return node;
+  if (Array.isArray(node)) {
+    return node.slice(0, 40).map((x) => slimSchemaNode(x, depth + 1, maxDepth));
+  }
+  const o = node as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  const skipKeys = new Set(["examples", "example", "$schema", "$defs", "definitions", "default"]);
+  for (const key of Object.keys(o).sort()) {
+    if (skipKeys.has(key)) continue;
+    if (key === "description" && typeof o[key] === "string") {
+      const d = o[key] as string;
+      out[key] = d.length > 400 ? `${d.slice(0, 400)}…` : d;
+      continue;
+    }
+    const v = o[key];
+    if (key === "properties" && v && typeof v === "object" && !Array.isArray(v)) {
+      const props = v as Record<string, unknown>;
+      const propKeys = Object.keys(props);
+      const required = Array.isArray(o.required)
+        ? (o.required as unknown[]).filter((x): x is string => typeof x === "string")
+        : [];
+      const ordered = [
+        ...required.filter((k) => k in props),
+        ...propKeys.filter((k) => !required.includes(k)),
+      ];
+      const cap = 48;
+      const keep = ordered.length <= cap ? ordered : ordered.slice(0, cap);
+      const newProps: Record<string, unknown> = {};
+      for (const k of keep) {
+        if (props[k] !== undefined) newProps[k] = slimSchemaNode(props[k], depth + 1, maxDepth);
+      }
+      out.properties = newProps;
+      if (required.length) {
+        out.required = required.filter((k) => k in newProps);
+      }
+      continue;
+    }
+    out[key] = slimSchemaNode(v, depth + 1, maxDepth);
+  }
+  return out;
+}
+
 function compactToolsForAnthropic(tools: LlmTool[]): LlmTool[] {
-  const MAX_TOOLS = 24;
-  const MAX_PER_SERVER = 6;
+  /** Assez large pour un serveur « n8n Builder » (~24 outils) + marge ; round-robin pour le reste. */
+  const MAX_TOOLS = 96;
+  const MAX_PER_SERVER = 32;
 
   const byServer = new Map<string, LlmTool[]>();
   for (const t of tools) {
@@ -38,8 +117,19 @@ function compactToolsForAnthropic(tools: LlmTool[]): LlmTool[] {
     byServer.set(server, arr);
   }
 
+  const groups = Array.from(byServer.values()).map((arr) =>
+    arr
+      .slice()
+      .sort((a, b) => {
+        const [ta, na] = anthropicMcpToolSortKey(a.name);
+        const [tb, nb] = anthropicMcpToolSortKey(b.name);
+        if (ta !== tb) return ta - tb;
+        return na.localeCompare(nb);
+      })
+      .slice(0, MAX_PER_SERVER),
+  );
+
   const selected: LlmTool[] = [];
-  const groups = Array.from(byServer.values()).map((arr) => arr.slice(0, MAX_PER_SERVER));
 
   // Pass 1: guarantee at least one tool per server when possible.
   for (const arr of groups) {
@@ -64,9 +154,8 @@ function compactToolsForAnthropic(tools: LlmTool[]): LlmTool[] {
 
   return selected.map((t) => ({
     name: t.name,
-    description: (t.description ?? "").slice(0, 160),
-    // Keep schema intentionally minimal to reduce input tokens/minute pressure.
-    parameters: { type: "object", properties: {} },
+    description: (t.description ?? "").slice(0, 420),
+    parameters: slimToolParameters(t.parameters),
   }));
 }
 
@@ -340,6 +429,16 @@ export const Route = createFileRoute("/api/chat")({
                 systemContent +=
                   " GEMINI_TOOL_FIRST (non-negotiable): On database catalog questions (schemas, tables, columns, counts), your response MUST start by invoking the MCP/database tool — never stream a bullet list of table names until after tool results exist in this turn. " +
                   "Outputting demo names (customers, orders, Northwind-style) without a successful tool call is a failure; stop and call the tool first.";
+              }
+              const hasN8nApiTools = allTools.some((t) => {
+                const d = decodeToolName(t.name);
+                return d?.toolName?.startsWith("n8n_") ?? false;
+              });
+              if (hasN8nApiTools) {
+                systemContent +=
+                  " N8N / WORKFLOW AUTOMATION: When the user asks to create, list, update, delete, test, or validate n8n workflows (or nodes inside them), you MUST call the appropriate n8n_* tools exposed in this session. " +
+                  "Use each tool's input schema: pass real workflow JSON or IDs as required. Prefer n8n_list_workflows / n8n_get_workflow before edits when the user references an existing workflow. " +
+                  "search_nodes and get_node are for documentation only — they do not create workflows. Never claim n8n API tools are missing if n8n_* tools are available.";
               }
               if (allTools.length === 0) {
                 systemContent +=
