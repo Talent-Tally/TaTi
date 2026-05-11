@@ -3,8 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
 
 export function AccountSettings({
   currentProfile,
@@ -23,6 +25,7 @@ export function AccountSettings({
     avatar_url?: string | null;
   }) => void;
 }) {
+  const { theme, setTheme } = useTheme();
   const [email, setEmail] = useState(currentProfile.email);
   const [firstName, setFirstName] = useState(currentProfile.first_name ?? "");
   const [lastName, setLastName] = useState(currentProfile.last_name ?? "");
@@ -97,6 +100,29 @@ export function AccountSettings({
           onChange={(e) => setAvatarUrl(e.target.value)}
           placeholder="https://..."
         />
+      </div>
+      <div className="space-y-1.5">
+        <Label>Apparence</Label>
+        <div className="flex items-center justify-between rounded-md border px-3 py-2">
+          <div className="flex items-center gap-2 text-sm">
+            {theme === "dark" ? (
+              <>
+                <Moon className="h-4 w-4" />
+                Sombre
+              </>
+            ) : (
+              <>
+                <Sun className="h-4 w-4" />
+                Clair
+              </>
+            )}
+          </div>
+          <Switch
+            checked={theme === "dark"}
+            onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+            aria-label="Basculer entre thème clair et sombre"
+          />
+        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1.5">
